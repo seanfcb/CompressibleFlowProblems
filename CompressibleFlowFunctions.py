@@ -2,14 +2,16 @@ import numpy as np
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
 
-def area_from_mass(Po,To,Rs,gamma,mdot): ##Function calculates the choking area using the compressible area ratio
+def area_from_mass(Po,To,Rs,gamma,mdot):
+    ##Function calculates the choking area using the compressible area ratio
     Po = Po*101325/14.7
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     Astar = mdot/Gstar
     return Astar
 
 
-def mass_from_area(Po,To,Rs,gamma,Dpipe): ##Function calculates the mass flow rate using the compressible area ratio
+def mass_from_area(Po,To,Rs,gamma,Dpipe):
+    ##Function calculates the mass flow rate using the compressible area ratio
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     mdot = Gstar*Astar
     return mdot
@@ -60,7 +62,7 @@ def astar_all_else_known(Dpipe,M,gamma):
     return Astar, Dstar
 
 def mach_from_aratio_subsonic(Aexit,Astar,gamma):
-    ##Function calculates the choking area using the compressible area ratio knowing all other properties
+    ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 0.99
     Apipe   = Aexit
@@ -82,7 +84,7 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma):
     return M
 
 def mach_from_aratio_supersonic(Aexit,Astar,gamma):
-    ##Function calculates the choking area using the compressible area ratio knowing all other properties
+    ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 100
     Aratio1 = Aexit/Astar
