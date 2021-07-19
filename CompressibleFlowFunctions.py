@@ -1,8 +1,10 @@
 import numpy as np
+import CoolProp.CoolProp as CP
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
+###In all functions, fluid is a string that refers to a name available in CoolProp
 
-def area_from_mass(Po,To,Rs,gamma,mdot):
+def area_from_mass(Po,To,Rs,gamma,mdot, fluid):
     ##Function calculates the choking area using the compressible area ratio
     Po = Po*101325/14.7
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
@@ -10,13 +12,13 @@ def area_from_mass(Po,To,Rs,gamma,mdot):
     return Astar
 
 
-def mass_from_area(Po,To,Rs,gamma,Dpipe):
+def mass_from_area(Po,To,Rs,gamma,Dpipe, fluid):
     ##Function calculates the mass flow rate using the compressible area ratio
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     mdot = Gstar*Astar
     return mdot
 
-def mach_from_pressure_ratio(Po1,Po2,gamma):
+def mach_from_pressure_ratio(Po1,Po2,gamma, fluid):
     ##For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
     tol  = 1e-9 #Tolerance for convergence method
     Mi   = 20 #First guess for Mach number
@@ -37,22 +39,22 @@ def mach_from_pressure_ratio(Po1,Po2,gamma):
             M = (a+b)/2
     return M
 
-def mach_after_shock(M1,gamma):
+def mach_after_shock(M1,gamma, fluid):
     ##Calculates the Mach number after a NSW knowing the pre-shock Mach number
     M2 = np.sqrt(((gamma-1)*M1*M1+2)/(2*gamma*M1*M1-(gamma-1)))
     return M2
 
-def pstatic_after_shock(M,gamma,P):
+def pstatic_after_shock(M,gamma,P, fluid):
     ##Calculates the static pressure after a NSW knowing the pre-choke Mach number, gamma, and static pressure
     P2 = P*(2*gamma*M*M-(gamma-1))/(gamma+1)
     return P2
 
-def pstag_after_shock(M,gamma,Po1):
+def pstag_after_shock(M,gamma,Po1, fluid):
     ##Calculates the stagnation pressure after a NSW knowing the pre-choke Mach number, gamma
     Po2 = Po1*(((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1)) ##Solution from the NSW stagnation pressure ratio equation.
     return Po2
 
-def astar_all_else_known(Dpipe,M,gamma):
+def astar_all_else_known(Dpipe,M,gamma, fluid):
     ##Function calculates the choking area using the compressible area ratio knowing all other properties
     Dpipe  = Dpipe*0.0254
     Apipe  = np.pi*Dpipe**2/4
@@ -61,7 +63,7 @@ def astar_all_else_known(Dpipe,M,gamma):
     Dstar  = np.sqrt(Astar*4/np.pi)
     return Astar, Dstar
 
-def mach_from_aratio_subsonic(Aexit,Astar,gamma):
+def mach_from_aratio_subsonic(Aexit,Astar,gamma, fluid):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 0.99
@@ -83,7 +85,7 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma):
             M = (a+b)/2
     return M
 
-def mach_from_aratio_supersonic(Aexit,Astar,gamma):
+def mach_from_aratio_supersonic(Aexit,Astar,gamma, fluid):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 100
@@ -104,12 +106,12 @@ def mach_from_aratio_supersonic(Aexit,Astar,gamma):
             M = (a+b)/2
     return M
 
-def aratio_from_mach(M,gamma):
+def aratio_from_mach(M,gamma, fluid):
     #Function calculates the compressible area ratio A/Astar knowing the Mach number and gamma
     Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
     return Aratio
 
-def p_from_pratio(Po,gamma,M):
+def p_from_pratio(Po,gamma,M, fluid):
     ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
     Po = Po*101325/14.7
     P_static = Po*(1+((gamma-1)/2)*M**2)**(-(gamma)/(gamma-1))
