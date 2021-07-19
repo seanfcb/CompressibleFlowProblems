@@ -118,7 +118,7 @@ def p_from_pratio(Po,gamma,M):
 def T_from_Tratio(To,gamma,M):
     ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
     To = To
-    T_static = To*(1+((gamma-1)/2)*M**2)
+    T_static = To/(1+((gamma-1)/2)*M**2)
     return T_static
 
 
