@@ -117,11 +117,31 @@ def p_from_pratio(Po,gamma,M, fluid):
     P_static = Po*(1+((gamma-1)/2)*M**2)**(-(gamma)/(gamma-1))
     return P_static
 
-def T_from_Tratio(To,gamma,M, fluid):
+def T_from_Tratio(To,Po,gamma,M, fluid):
     ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
-    To = To
-    T_static = To/(1+((gamma-1)/2)*M**2)
-    return T_static
+    Po = Po*101325/14.7
+    ho = CP.PropsSI('H','P',Po,'T',To,fluid) #ho = h(Po,To)
+    so = CP.PropsSI('S','P',Po,'T',To,fluid) #s = so = s(Po,To)
+    
+    #fixed point iteration
+    #initial guess, h = h0
+    h  = ho
+    tol = 1e-9
+    hold = 1e3*h
+    i = 0
+    while abs((hold - h)/h) > tol:
+      #print(i)
+      hold = h
+      c  = CP.PropsSI('speed_of_sound','H',h,'S',so,fluid)
+      V  = M*c
+      h = ho - (M*c)**2/2
+      i = i + 1
+        
+    T_static = CP.PropsSI('T','H',h,'S',so,fluid)
+    phase = CP.PhaseSI('H',h,'S',so,fluid)
+    if phase[-3:] != 'gas':
+      print('WARNING: Fluid is no longer in a gas phase')
+    return (T_static, phase)
 
 
 def hole_numbers(Dhole,Astar):
