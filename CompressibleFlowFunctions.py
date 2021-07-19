@@ -104,6 +104,11 @@ def mach_from_aratio_supersonic(Aexit,Astar,gamma):
             M = (a+b)/2
     return M
 
+def aratio_from_mach(M,gamma):
+    #Function calculates the compressible area ratio A/Astar knowing the Mach number and gamma
+    Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+    return Aratio
+
 def p_from_pratio(Po,gamma,M):
     ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
     Po = Po*101325/14.7

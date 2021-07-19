@@ -36,6 +36,10 @@ mach_from_aratio_supersonic(Aexit,Astar,gamma):
 
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
 
+aratio_from_mach(M,gamma):
+
+    ##Function calculates the compressible area ratio A/Astar knowing the Mach number and gamma
+
 p_from_pratio(Po,gamma,M):
 
     ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
