@@ -125,10 +125,13 @@ def T_from_Tratio(To,Po,gamma,M, fluid):
     
     #fixed point iteration
     #initial guess, h = h0
-    h  = ho
     tol = 1e-9
-    hold = 1e3*h
     i = 0
+
+    gamma_o = CP.PropsSI('isentropic_expansion_coefficient','H',ho,'S',so,fluid)
+    T      = To / (1 + 0.5*(gamma_o-1)*M**2)
+    h      = CP.PropsSI('H','T',T,'S',so,fluid)
+    hold   = 1e3*h
     while abs((hold - h)/h) > tol:
       #print(i)
       hold = h
