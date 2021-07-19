@@ -56,7 +56,7 @@ def astar_all_else_known(Dpipe,M,gamma):
     ##Function calculates the choking area using the compressible area ratio knowing all other properties
     Dpipe  = Dpipe*0.0254
     Apipe  = np.pi*Dpipe**2/4
-    Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+    Aratio = aratio_from_mach(M,gamma)
     Astar  = Apipe/Aratio
     Dstar  = np.sqrt(Astar*4/np.pi)
     return Astar, Dstar
@@ -73,7 +73,7 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma):
     b = Mguess
     M = (a + b)/2
     while abs(zero) > tol:
-        Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+        Aratio = aratio_from_mach(M,gamma)
         zero   = Aratio1 - Aratio
         if zero < 0:
             a = M
@@ -94,7 +94,7 @@ def mach_from_aratio_supersonic(Aexit,Astar,gamma):
     b = Mguess
     M = Mguess
     while abs(zero) > tol:
-        Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+        Aratio = aratio_from_mach(M,gamma)
         zero   = Aratio1 - Aratio
         if zero > 0:
             a = M
