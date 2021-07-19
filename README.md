@@ -1,4 +1,8 @@
 # ChokedInjectors
+
+Uses CoolProp as a source of non-ideal EOS. Requires installation of
+CoolProp and Python Bindings
+
 Here is a list of functions available in CompressibleFlowFunctions.py:
 
 area_from_mass(Po,To,Rs,gamma,mdot): 
