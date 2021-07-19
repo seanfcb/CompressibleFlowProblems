@@ -67,7 +67,7 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma):
     Mguess  = 0.99
     Apipe   = Aexit
     Aratio1 = Apipe/Astar
-    Aratio2 = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*Mguess*Mguess)**((gamma+1)/(2*(gamma-1)))/Mguess
+    Aratio2 = aratio_from_mach(Mguess,gamma)
     zero    = Aratio1 - Aratio2
     a = 0
     b = Mguess
@@ -88,7 +88,7 @@ def mach_from_aratio_supersonic(Aexit,Astar,gamma):
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 100
     Aratio1 = Aexit/Astar
-    Aratio2 = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*Mguess*Mguess)**((gamma+1)/(2*(gamma-1)))/Mguess
+    Aratio2 = aratio_from_mach(Mguess,gamma)
     zero    = Aratio1 - Aratio2
     a = 1
     b = Mguess
