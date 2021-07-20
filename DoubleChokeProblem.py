@@ -6,8 +6,8 @@ from CompressibleFlowFunctions import *
 ##Calculate the injection area required to choke the injector, and the needle valve effective diameter with the following flow values:
 Po1_ox     = 800 #psi
 Po1_fuel   = 800
-Po2_ox     = 400
-Po2_fuel   = 400 #psi
+Po2_ox     = 300
+Po2_fuel   = 300 #psi
 To         = 300 #Kelvin
 Dopipe     = 3/8 #pipe outer diameter in inches
 PipeT      = 0.049 #wall thickness in inches

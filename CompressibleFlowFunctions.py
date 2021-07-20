@@ -16,6 +16,11 @@ def mass_from_area(Po,To,Rs,gamma,Dpipe):
     mdot = Gstar*Astar
     return mdot
 
+def prat_from_mach(gamma,M):
+    ##For a known pre-shock mach number, what is the stagnation pressure ratio
+    pratio = (((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1))
+    return pratio
+
 def mach_from_pressure_ratio(Po1,Po2,gamma):
     ##For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
     tol  = 1e-9 #Tolerance for convergence method
