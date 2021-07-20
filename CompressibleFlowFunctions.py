@@ -61,7 +61,7 @@ def astar_all_else_known(Dpipe,M,gamma):
     ##Function calculates the choking area using the compressible area ratio knowing all other properties
     Dpipe  = Dpipe*0.0254
     Apipe  = np.pi*Dpipe**2/4
-    Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+    Aratio = aratio_from_mach(M,gamma)
     Astar  = Apipe/Aratio
     Dstar  = np.sqrt(Astar*4/np.pi)
     return Astar, Dstar
@@ -72,13 +72,13 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma):
     Mguess  = 0.99
     Apipe   = Aexit
     Aratio1 = Apipe/Astar
-    Aratio2 = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*Mguess*Mguess)**((gamma+1)/(2*(gamma-1)))/Mguess
+    Aratio2 = aratio_from_mach(Mguess,gamma)
     zero    = Aratio1 - Aratio2
     a = 0
     b = Mguess
     M = (a + b)/2
     while abs(zero) > tol:
-        Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+        Aratio = aratio_from_mach(M,gamma)
         zero   = Aratio1 - Aratio
         if zero < 0:
             a = M
@@ -93,13 +93,13 @@ def mach_from_aratio_supersonic(Aexit,Astar,gamma):
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 100
     Aratio1 = Aexit/Astar
-    Aratio2 = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*Mguess*Mguess)**((gamma+1)/(2*(gamma-1)))/Mguess
+    Aratio2 = aratio_from_mach(Mguess,gamma)
     zero    = Aratio1 - Aratio2
     a = 1
     b = Mguess
     M = Mguess
     while abs(zero) > tol:
-        Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
+        Aratio = aratio_from_mach(M,gamma)
         zero   = Aratio1 - Aratio
         if zero > 0:
             a = M
@@ -119,6 +119,13 @@ def p_from_pratio(Po,gamma,M):
     Po = Po*101325/14.7
     P_static = Po*(1+((gamma-1)/2)*M**2)**(-(gamma)/(gamma-1))
     return P_static
+
+def T_from_Tratio(To,gamma,M):
+    ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
+    To = To
+    T_static = To/(1+((gamma-1)/2)*M**2)
+    return T_static
+
 
 def hole_numbers(Dhole,Astar):
     Dhole = Dhole*0.0254
