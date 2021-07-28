@@ -111,10 +111,14 @@ def aratio_from_mach(M,gamma, fluid):
     Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
     return Aratio
 
-def p_from_pratio(Po,gamma,M, fluid):
+def p_from_pratio(To,Po,gamma,M, fluid):
     ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
     Po = Po*101325/14.7
-    P_static = Po*(1+((gamma-1)/2)*M**2)**(-(gamma)/(gamma-1))
+    ho = CP.PropsSI('H','P',Po,'T',To,fluid) #ho = h(Po,To)
+    so = CP.PropsSI('S','P',Po,'T',To,fluid) #s = so = s(Po,To)
+    Tsol = T_from_Tratio(To,Po,gamma,M,fluid)
+    T_static = Tsol[0]
+    P_static = CP.PropsSI('P','T',T_static,'S',so,fluid)
     return P_static
 
 def T_from_Tratio(To,Po,gamma,M, fluid):
@@ -122,7 +126,7 @@ def T_from_Tratio(To,Po,gamma,M, fluid):
     Po = Po*101325/14.7
     ho = CP.PropsSI('H','P',Po,'T',To,fluid) #ho = h(Po,To)
     so = CP.PropsSI('S','P',Po,'T',To,fluid) #s = so = s(Po,To)
-    
+    Ttriple = CP.PropsSI('T_Triple',fluid)
     #fixed point iteration
     #initial guess, h = h0
     tol = 1e-9
@@ -138,6 +142,7 @@ def T_from_Tratio(To,Po,gamma,M, fluid):
       c  = CP.PropsSI('speed_of_sound','H',h,'S',so,fluid)
       V  = M*c
       h = ho - (M*c)**2/2
+      print(hold,h)
       i = i + 1
         
     T_static = CP.PropsSI('T','H',h,'S',so,fluid)
