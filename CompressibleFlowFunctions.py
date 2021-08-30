@@ -18,6 +18,11 @@ def mass_from_area(Po,To,Rs,gamma,Dpipe, fluid):
     mdot = Gstar*Astar
     return mdot
 
+def prat_from_mach(gamma,M):
+    ##For a known pre-shock mach number, what is the stagnation pressure ratio
+    pratio = (((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1))
+    return pratio
+
 def mach_from_pressure_ratio(Po1,Po2,gamma, fluid):
     ##For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
     tol  = 1e-9 #Tolerance for convergence method
@@ -85,6 +90,29 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma, fluid):
             M = (a+b)/2
     return M
 
+def mach_from_massflow_subsonic(Aexit,mdot,Po,To,Rs,gamma):
+    ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
+    tol     = 1e-9 #Tolerance for convergence method
+    Mguess  = 0.99
+    Apipe   = Aexit
+    Dpipe   = np.sqrt(4*Apipe/np.pi)
+    G1 = mdot/Apipe
+    G2 = mass_from_area(Po,To,Rs,gamma,Dpipe)
+    a = 0
+    b = Mguess
+    M = (a + b)/2
+    zero = 1
+    while abs(zero) > tol:
+        Gcalc = mass_from_area(Po,To,Rs,gamma,Dpipe)
+        zero   = G1 - Gcalc
+        if zero < 0:
+            a = M
+            M = (a+b)/2
+        elif zero > 0:
+            b = M
+            M = (a+b)/2
+    return M
+    
 def mach_from_aratio_supersonic(Aexit,Astar,gamma, fluid):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     tol     = 1e-9 #Tolerance for convergence method
