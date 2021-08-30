@@ -18,7 +18,7 @@ def mass_from_area(Po,To,Rs,gamma,Dpipe, fluid):
     mdot = Gstar*Astar
     return mdot
 
-def prat_from_mach(gamma,M):
+def prat_from_mach(gamma,M, fluid):
     ##For a known pre-shock mach number, what is the stagnation pressure ratio
     pratio = (((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1))
     return pratio
@@ -90,7 +90,7 @@ def mach_from_aratio_subsonic(Aexit,Astar,gamma, fluid):
             M = (a+b)/2
     return M
 
-def mach_from_massflow_subsonic(Aexit,mdot,Po,To,Rs,gamma):
+def mach_from_massflow_subsonic(Aexit,mdot,Po,To,Rs,gamma, fluid):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     tol     = 1e-9 #Tolerance for convergence method
     Mguess  = 0.99
