@@ -65,7 +65,7 @@ def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,subsuper):
     elif subsuper == 'supersonic':
         M = bisect(delta_G,1,99,args=(Po,Rs,To,gamma,mdot,Apipe))
     else:
-        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch')
+        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch when calling mach_from_G')
 
     return M
 
@@ -79,7 +79,7 @@ def mach_from_aratio(Aexit,Astar,gamma,subsuper):
     elif subsuper == 'supersonic':
         M = bisect(arat_delta,1,99,args=(gamma,Apipe,Astar))
     else:
-        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch')
+        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch when calling mach_from_aratio')
     return M
 
 def mach_from_massflow(Aexit,mdot,Po,To,Rs,gamma,subsuper):
@@ -93,7 +93,7 @@ def mach_from_massflow(Aexit,mdot,Po,To,Rs,gamma,subsuper):
     elif subsuper == 'supersonic':
         M = bisect(g_delta,1,99,args(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
     else:
-        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch')
+        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch when calling mach_from_massflow')
 
     return M
 
