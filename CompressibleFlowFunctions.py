@@ -59,7 +59,7 @@ def astar_all_else_known(Dpipe,M,gamma):
     return Astar, Dstar
 
 def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe):
-    Apipe = np.pi()*Dpipe*Dpipe/4
+    Apipe = np.pi*Dpipe*Dpipe/4
     def delta_G(M,Po,Rs,To,gamma,mdot,Apipe):
         return mdot/Apipe - Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
     M = bisect(delta_G,0.00001,0.99,args=(Po,Rs,To,gamma,mdot,Apipe))
