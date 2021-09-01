@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from scipy.optimize import bisect
 
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
@@ -6,7 +7,6 @@ from scipy.optimize import bisect
 
 def area_from_mass(Po,To,Rs,gamma,mdot):
     ##Function calculates the choking area using the compressible area ratio
-    Po = Po*101325/14.7
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     Astar = mdot/Gstar
     return Astar
@@ -27,7 +27,6 @@ def prat_from_mach(gamma,M):
 
 def mach_from_pressure_ratio(Po1,Po2,gamma):
     ##For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
-    #Mi   = 20 #First guess for Mach number
     Por  = Po2/Po1 ##Desired pressure ratio
     def Prat(Mi,gamma,Por):
         return (((gamma+1)*Mi*Mi)/((gamma-1)*Mi*Mi+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*Mi*Mi-(gamma-1)))**(1/(gamma-1)) - Por
@@ -51,43 +50,51 @@ def pstag_after_shock(M,gamma,Po1):
 
 def astar_all_else_known(Dpipe,M,gamma):
     ##Function calculates the choking area using the compressible area ratio knowing all other properties
-    Dpipe  = Dpipe*0.0254
     Apipe  = np.pi*Dpipe**2/4
     Aratio = aratio_from_mach(M,gamma)
     Astar  = Apipe/Aratio
     Dstar  = np.sqrt(Astar*4/np.pi)
     return Astar, Dstar
 
-def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe):
+def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,subsuper):
     Apipe = np.pi*Dpipe*Dpipe/4
     def delta_G(M,Po,Rs,To,gamma,mdot,Apipe):
         return mdot/Apipe - Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
-    M = bisect(delta_G,0.00001,0.99,args=(Po,Rs,To,gamma,mdot,Apipe))
+    if subsuper == 'subsonic':
+        M = bisect(delta_G,0.00001,0.99,args=(Po,Rs,To,gamma,mdot,Apipe))
+    elif subsuper == 'supersonic':
+        M = bisect(delta_G,1,99,args=(Po,Rs,To,gamma,mdot,Apipe))
+    else:
+        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch')
+
     return M
 
-def mach_from_aratio_subsonic(Aexit,Astar,gamma):
+def mach_from_aratio(Aexit,Astar,gamma,subsuper):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     Apipe   = Aexit
     def arat_delta(M,gamma,Apipe,Astar):
         return Apipe/Astar - aratio_from_mach(M,gamma)
-    M = bisect(arat_delta,0.00001,0.99,args=(gamma,Apipe,Astar))
+    if subsuper == 'subsonic':
+        M = bisect(arat_delta,0.00001,0.99,args=(gamma,Apipe,Astar))
+    elif subsuper == 'supersonic':
+        M = bisect(arat_delta,1,99,args=(gamma,Apipe,Astar))
+    else:
+        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch')
     return M
 
-def mach_from_massflow_subsonic(Aexit,mdot,Po,To,Rs,gamma):
+def mach_from_massflow(Aexit,mdot,Po,To,Rs,gamma,subsuper):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
     Apipe   = Aexit
     Dpipe   = np.sqrt(4*Apipe/np.pi)
-    def g_delta():
+    def g_delta(M,Po,To,Rs,gamma,Dpipe,Apipe,mdot):
         return mdot/Apipe - mass_from_area(M,Po,To,Rs,gamma,Dpipe)
-    M = bisect(g_delta,0.00001,0.99,args())
-    return M
+    if subsuper == 'subsonic':
+        M = bisect(g_delta,0.00001,0.99,args(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
+    elif subsuper == 'supersonic':
+        M = bisect(g_delta,1,99,args(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
+    else:
+        sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch')
 
-def mach_from_aratio_supersonic(Aexit,Astar,gamma):
-    ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
-    Apipe   = Aexit
-    def arat_delta(M,gamma,Apipe,Astar):
-        return Apipe/Astar - aratio_from_mach(M,gamma)
-    M = bisect(arat_delta,1,100,args=(gamma,Apipe,Astar))
     return M
 
 def aratio_from_mach(M,gamma):
@@ -113,6 +120,5 @@ def mdot_to_scfh(mdot,Rs,G):
     return scfh
 
 def hole_numbers(Dhole,Astar):
-    Dhole = Dhole*0.0254
     numholes = 4*Astar/np.pi/Dhole/Dhole
     return numholes

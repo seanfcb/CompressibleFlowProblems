@@ -26,7 +26,7 @@ Q          = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14
 
 #Calculate the Mach number at the inlet of the pipe.
 Po1_metric = Po1_initial*101325/14.7
-M_initial  = mach_from_G(Po1_metric,Rs,To,gamma,mdot/1000,Dpipe)
+M_initial  = mach_from_G(Po1_metric,Rs,To,gamma,mdot/1000,Dpipe,'suersonic')
 P1_initial = p_from_pratio(Po1_initial,gamma,M_initial)
 
 
