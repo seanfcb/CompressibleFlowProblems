@@ -58,7 +58,7 @@ def astar_all_else_known(Dpipe,M,gamma):
     Dstar  = np.sqrt(Astar*4/np.pi)
     return Astar, Dstar
 
-def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,Mi):
+def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe):
     Apipe = np.pi()*Dpipe*Dpipe/4
     def delta_G(M,Po,Rs,To,gamma,mdot,Apipe):
         return mdot/Apipe - Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
@@ -107,6 +107,12 @@ def T_from_Tratio(To,gamma,M):
     T_static = To/(1+((gamma-1)/2)*M**2)
     return T_static
 
+def mdot_to_scfh(mdot,Rs,G):
+    mdot = mdot*60*2.205/1000 #g/s to lbm/min
+    rho  = 101325/(Rs*288.7)*2.205/(3.28084**3) #calculate the stp density, converting to lb/cu.ft
+    Q    = mdot/rho
+    scfh = Q/np.sqrt(1/G)*60
+    return scfh
 
 def hole_numbers(Dhole,Astar):
     Dhole = Dhole*0.0254
