@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.optimize import bisect
+
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
 
@@ -10,11 +12,12 @@ def area_from_mass(Po,To,Rs,gamma,mdot):
     return Astar
 
 
-def mass_from_area(Po,To,Rs,gamma,Dpipe):
+def mass_from_area(M,Po,To,Rs,gamma,Dpipe):
     ##Function calculates the mass flow rate using the compressible area ratio
     Astar = np.pi*Dpipe*Dpipe/4
-    Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
-    mdot = Gstar*Astar
+    #Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
+    Gstar = Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
+    mdot  = Gstar*Astar
     return mdot
 
 def prat_from_mach(gamma,M):
@@ -24,23 +27,11 @@ def prat_from_mach(gamma,M):
 
 def mach_from_pressure_ratio(Po1,Po2,gamma):
     ##For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
-    tol  = 1e-9 #Tolerance for convergence method
-    Mi   = 20 #First guess for Mach number
+    #Mi   = 20 #First guess for Mach number
     Por  = Po2/Po1 ##Desired pressure ratio
-    Prat = (((gamma+1)*Mi*Mi)/((gamma-1)*Mi*Mi+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*Mi*Mi-(gamma-1)))**(1/(gamma-1)) ##Solution from the NSW stagnation pressure ratio equation.
-    zero = Por - Prat
-    a = 1
-    b = Mi
-    M = (a+b)/2
-    while abs(zero) > tol:
-        Prat = (((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1)) ##Solution from the NSW stagnation pressure ratio equation.
-        zero = Por-Prat
-        if zero<0:
-            a = M
-            M = (a+b)/2
-        elif zero > 0:
-            b = M
-            M = (a+b)/2
+    def Prat(Mi,gamma,Por):
+        return (((gamma+1)*Mi*Mi)/((gamma-1)*Mi*Mi+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*Mi*Mi-(gamma-1)))**(1/(gamma-1)) - Por
+    M = bisect(Prat,1,100,args=(gamma,Por))
     return M
 
 def mach_after_shock(M1,gamma):
@@ -69,74 +60,34 @@ def astar_all_else_known(Dpipe,M,gamma):
 
 def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,Mi):
     Apipe = np.pi()*Dpipe*Dpipe/4
-    mdot_over_a = mdot/Apipe
-
-    return
+    def delta_G(M,Po,Rs,To,gamma,mdot,Apipe):
+        return mdot/Apipe - Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
+    M = bisect(delta_G,0.00001,0.99,args=(Po,Rs,To,gamma,mdot,Apipe))
+    return M
 
 def mach_from_aratio_subsonic(Aexit,Astar,gamma):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
-    tol     = 1e-9 #Tolerance for convergence method
-    Mguess  = 0.99
     Apipe   = Aexit
-    Aratio1 = Apipe/Astar
-    Aratio2 = aratio_from_mach(Mguess,gamma)
-    zero    = Aratio1 - Aratio2
-    a = 0
-    b = Mguess
-    M = (a + b)/2
-    while abs(zero) > tol:
-        Aratio = aratio_from_mach(M,gamma)
-        zero   = Aratio1 - Aratio
-        if zero < 0:
-            a = M
-            M = (a+b)/2
-        elif zero > 0:
-            b = M
-            M = (a+b)/2
+    def arat_delta(M,gamma,Apipe,Astar):
+        return Apipe/Astar - aratio_from_mach(M,gamma)
+    M = bisect(arat_delta,0.00001,0.99,args=(gamma,Apipe,Astar))
     return M
 
 def mach_from_massflow_subsonic(Aexit,mdot,Po,To,Rs,gamma):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
-    tol     = 1e-9 #Tolerance for convergence method
-    Mguess  = 0.99
     Apipe   = Aexit
     Dpipe   = np.sqrt(4*Apipe/np.pi)
-    G1 = mdot/Apipe
-    G2 = mass_from_area(Po,To,Rs,gamma,Dpipe)
-    a = 0
-    b = Mguess
-    M = (a + b)/2
-    zero = 1
-    while abs(zero) > tol:
-        Gcalc = mass_from_area(Po,To,Rs,gamma,Dpipe)
-        zero   = G1 - Gcalc
-        if zero < 0:
-            a = M
-            M = (a+b)/2
-        elif zero > 0:
-            b = M
-            M = (a+b)/2
+    def g_delta():
+        return mdot/Apipe - mass_from_area(M,Po,To,Rs,gamma,Dpipe)
+    M = bisect(g_delta,0.00001,0.99,args())
     return M
-    
+
 def mach_from_aratio_supersonic(Aexit,Astar,gamma):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
-    tol     = 1e-9 #Tolerance for convergence method
-    Mguess  = 100
-    Aratio1 = Aexit/Astar
-    Aratio2 = aratio_from_mach(Mguess,gamma)
-    zero    = Aratio1 - Aratio2
-    a = 1
-    b = Mguess
-    M = Mguess
-    while abs(zero) > tol:
-        Aratio = aratio_from_mach(M,gamma)
-        zero   = Aratio1 - Aratio
-        if zero > 0:
-            a = M
-            M = (a+b)/2
-        elif zero < 0:
-            b = M
-            M = (a+b)/2
+    Apipe   = Aexit
+    def arat_delta(M,gamma,Apipe,Astar):
+        return Apipe/Astar - aratio_from_mach(M,gamma)
+    M = bisect(arat_delta,1,100,args=(gamma,Apipe,Astar))
     return M
 
 def aratio_from_mach(M,gamma):
