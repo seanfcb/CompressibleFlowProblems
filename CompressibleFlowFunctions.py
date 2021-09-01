@@ -12,6 +12,7 @@ def area_from_mass(Po,To,Rs,gamma,mdot):
 
 def mass_from_area(Po,To,Rs,gamma,Dpipe):
     ##Function calculates the mass flow rate using the compressible area ratio
+    Astar = np.pi*Dpipe*Dpipe/4
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     mdot = Gstar*Astar
     return mdot
@@ -65,6 +66,12 @@ def astar_all_else_known(Dpipe,M,gamma):
     Astar  = Apipe/Aratio
     Dstar  = np.sqrt(Astar*4/np.pi)
     return Astar, Dstar
+
+def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,Mi):
+    Apipe = np.pi()*Dpipe*Dpipe/4
+    mdot_over_a = mdot/Apipe
+
+    return
 
 def mach_from_aratio_subsonic(Aexit,Astar,gamma):
     ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
