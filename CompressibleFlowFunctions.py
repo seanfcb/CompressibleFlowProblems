@@ -6,18 +6,17 @@ from scipy.optimize import bisect
 ###All functions output answers in SI units
 
 def area_from_mass(Po,To,Rs,gamma,mdot):
-    ##Function calculates the choking area using the compressible area ratio
+    """Function calculates the choking area using the compressible area ratio"""
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     Astar = mdot/Gstar
     return Astar
 
-
-def mass_from_area(M,Po,To,Rs,gamma,Dpipe):
+def mass_from_area(M,Po,To,Rs,gamma,Area):
     ##Function calculates the mass flow rate using the compressible area ratio
-    Astar = np.pi*Dpipe*Dpipe/4
+    #Astar = np.pi*Dpipe*Dpipe/4
     #Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     Gstar = Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
-    mdot  = Gstar*Astar
+    mdot  = Gstar*Area
     return mdot
 
 def prat_from_mach(gamma,M):

@@ -4,10 +4,10 @@ from CompressibleFlowFunctions import *
 ##The double choke problem##
 
 ##Calculate the injection area required to choke the injector, and the needle valve effective diameter with the following flow values:
-Po1_ox     = 800 #psi
-Po1_fuel   = 800
-Po2_ox     = 300
-Po2_fuel   = 300 #psi
+Po1_ox     = 800*101325/14.7 #psi
+Po1_fuel   = 800*101325/14.7
+Po2_ox     = 300*101325/14.7
+Po2_fuel   = 300*101325/14.7 #psi
 To         = 300 #Kelvin
 Dopipe     = 3/8 #pipe outer diameter in inches
 PipeT      = 0.049 #wall thickness in inches
@@ -49,14 +49,14 @@ Aneedle_ox   = area_from_mass(Po1_ox,To,Rs_ox,gamma_ox,mdot_ox)
 Aneedle_fuel = area_from_mass(Po1_fuel,To,Rs_fuel,gamma_fuel,mdot_fuel)
 
 #Consider the subsonic branch
-M_ox   = mach_from_aratio_subsonic(Apipe,Aneedle_ox,gamma_ox)
-M_fuel = mach_from_aratio_subsonic(Apipe,Aneedle_fuel,gamma_fuel)
+M_ox   = mach_from_aratio(Apipe,Aneedle_ox,gamma_ox,'subsonic')
+M_fuel = mach_from_aratio(Apipe,Aneedle_fuel,gamma_fuel,'subsonic')
 P_ox   = p_from_pratio(Po1_ox,gamma_ox,M_ox)
 P_fuel = p_from_pratio(Po1_fuel,gamma_fuel,M_fuel)
 #This branch produces static pressures much larger than Po2 which we consider to be the back pressure Pb, therefore the flow must have gone supersonic at some point
 #Consider the supersonic branch
-M_ox   = mach_from_aratio_supersonic(Apipe,Aneedle_ox,gamma_ox)
-M_fuel = mach_from_aratio_supersonic(Apipe,Aneedle_fuel,gamma_fuel)
+M_ox   = mach_from_aratio(Apipe,Aneedle_ox,gamma_ox,'supersonic')
+M_fuel = mach_from_aratio(Apipe,Aneedle_fuel,gamma_fuel,'supersonic')
 P_ox   = p_from_pratio(Po1_ox,gamma_ox,M_ox)
 P_fuel = p_from_pratio(Po1_fuel,gamma_fuel,M_fuel)
 #The supersonic branch produces static pressure much smaller than Pb, therefore we consider the appearance of a NSW
