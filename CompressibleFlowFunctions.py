@@ -121,3 +121,18 @@ def mdot_to_scfh(mdot,Rs,G):
 def hole_numbers(Dhole,Astar):
     numholes = 4*Astar/np.pi/Dhole/Dhole
     return numholes
+
+def colebrook_white(f,Re,D,epsilon):
+    return 1/np.sqrt(f) - (-2)*np.log10(epsilon/3.7*D + 2.51/(Re*np.sqrt(f)))
+
+def Lstar_fanno(f,D,M,gamma): #Define the Fanno equation to iterate on
+    return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))*D/(4*f)
+
+def mach_fanno(L,f,D,gamma): #Define the Fanno equation to iterate on
+    def delta_fanno(M,L,f,D,gamma):
+        return ((1-M**2)/(gamma*M**2) + ((gamma+1)/(2*gamma))*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2)))) - 4*f*L/D
+    M = bisect(delta_fanno,0.001,1,args=(L,f,D,gamma))
+    return M
+
+def delta_mass(M,mdot,P,Rs,To,gamma,A):
+    return mdot/1000 - P*(1+(gamma-1)/2*M*M)**(gamma/(gamma-1))*A*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
