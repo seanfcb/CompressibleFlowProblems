@@ -7,7 +7,11 @@ from flowsysloss import *
 def flowrates(P2,P1,Cv,SG,Q):
     return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2)/SG) - Q ##From the Deltrol catalog, equation relating volume flow rate Q to
 
+
+
 ### Define parameters
+Dpipe = Dopipe-2*PipeT
+Dpipe   = Dpipe*0.0254
 Apipe      = np.pi*Dpipe*Dpipe/4
 Q          = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14.7 psia and 60F.
 
