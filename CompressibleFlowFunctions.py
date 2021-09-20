@@ -125,14 +125,41 @@ def hole_numbers(Dhole,Astar):
 def colebrook_white(f,Re,D,epsilon):
     return 1/np.sqrt(f) - (-2)*np.log10(epsilon/3.7*D + 2.51/(Re*np.sqrt(f)))
 
+def delta_fanno(M,L,f,D,gamma):
+    return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))-4*f*L/D
+
 def Lstar_fanno(f,D,M,gamma): #Define the Fanno equation to iterate on
+    #return (D/(4*f))*((1-M**2)/(gamma*M**2)+(gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))*D/(4*f)
 
 def mach_fanno(L,f,D,gamma): #Define the Fanno equation to iterate on
-    def delta_fanno(M,L,f,D,gamma):
-        return ((1-M**2)/(gamma*M**2) + ((gamma+1)/(2*gamma))*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2)))) - 4*f*L/D
     M = bisect(delta_fanno,0.001,1,args=(L,f,D,gamma))
     return M
 
-def delta_mass(M,mdot,P,Rs,To,gamma,A):
+def delta_mass_static(M,mdot,P,Rs,To,gamma,A):
     return mdot/1000 - P*(1+(gamma-1)/2*M*M)**(gamma/(gamma-1))*A*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
+
+def delta_mass_stag(M,mdot,Po,Rs,To,gamma,A):
+    return mdot/1000 - A*Po*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**((-(gamma+1))/(2*(gamma-1)))
+
+def fanno_po_ratio(M,gamma):
+    return (1/M)*((2+(gamma-1)*M**2)/(gamma+1))**((gamma+1)/(2*(gamma-1)))
+
+def fanno_pressure_drop(Po1,mdot,Rs,To,gamma,Apipe,mu,epsilon): ##incomplete function
+    #Given an initial Po, this function calculates following:
+    #Step 1) Calculate the Reynolds Number.
+    #Step 2) Calculate the Fanning friction factor using the Colebrook-White Equation
+    #Step 3) Calculate flow properties after a given length of pipe
+    ## Step 1)
+    Dpipe = np.sqrt(4*Apipe/np.pi)
+    Po1   = Po1*101325/14.7
+    M1    = bisect(delta_mass_stag,0.0001,0.99,args=(mdot,Po1,Rs,To,gamma,Apipe))
+    P1    = p_from_pratio(Po1,gamma,M1)
+    T1    = T_from_Tratio(To,gamma,M1)
+    rho1  = P1/(T1*Rs)
+    Re    = rho1*M1*np.sqrt(gamma*Rs*T1)*Dpipe/mu
+    #Step 2
+    darcy = bisect(colebrook_white,1e-6,1,args=(Re,Dpipe,epsilon))
+    fanning = darcy/4
+    #Step 3)
+    Lstar = Lstar_fanno()
