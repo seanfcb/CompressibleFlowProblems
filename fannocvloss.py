@@ -6,7 +6,7 @@ gamma      = 1.4 #gamma of oxygen
 To         = 300
 Rs         = 8314.5/Mm # calculate the specific gas constant
 SG         = 1.1044 #specific gravity of O2 vs Air
-mdot       = 150 #grams per second
+mdot       = 155 #grams per second
 mu         = 12e-6
 
 # ##Quantities specific to Ethylene (C2H4)
@@ -32,7 +32,7 @@ mu         = 12e-6
 
 ## Flow system specific quantities
 epsilon    = 0.25e-6
-Dopipe     = 1/2 #inches to meters
+Dopipe     = 3/8 #inches to meters
 PipeT      = 0.049 #wall thickness in inches
 Cv_green   = 7 #catalog Cv for green valve
 Cv_black   = 1.5 #catalog Cv for black valve
