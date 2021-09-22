@@ -88,9 +88,9 @@ def mach_from_massflow(Aexit,mdot,Po,To,Rs,gamma,subsuper):
     def g_delta(M,Po,To,Rs,gamma,Dpipe,Apipe,mdot):
         return mdot/Apipe - mass_from_area(M,Po,To,Rs,gamma,Dpipe)
     if subsuper == 'subsonic':
-        M = bisect(g_delta,0.00001,0.99,args(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
+        M = bisect(g_delta,0.00001,0.99,args=(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
     elif subsuper == 'supersonic':
-        M = bisect(g_delta,1,99,args(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
+        M = bisect(g_delta,1,99,args=(Po,To,Rs,gamma,Dpipe,Apipe,mdot))
     else:
         sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch when calling mach_from_massflow')
 
