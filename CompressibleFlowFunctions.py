@@ -5,6 +5,16 @@ from scipy.optimize import bisect
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
 
+def flowrates(P2,P1,Cv,SG,Q):
+    '''
+    Expected inputs:
+    P1 and P2: Pressures upstream and downstream, PSI
+    Cv       : Flow coefficient
+    SG       : Specific gravity w.r.t. air
+    Q        : Volumetric flow rate, SCFH (see mdot_to_scfh)
+    '''
+    return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2))/np.sqrt(SG) - Q ##From the Deltrol catalog, equation relating volume flow rate Q to
+
 def area_from_mass(Po,To,Rs,gamma,mdot):
     """Function calculates the choking area using the compressible area ratio"""
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
@@ -123,6 +133,15 @@ def hole_numbers(Dhole,Astar):
     return numholes
 
 def colebrook_white(f,Re,D,epsilon):
+    '''
+    Subtracts both sides of the Colebrook-White equation to calculate the Darcy friction factor.
+    Divide the result by 4 for the Fanning friction factor.
+    Expected inputs:
+    f       : Darcy friction factor
+    Re      : Reynolds Number
+    D       : Pipe diameter
+    epsilon : Surface roughness in micrometers
+    '''
     return 1/np.sqrt(f) - (-2)*np.log10(epsilon/3.7*D + 2.51/(Re*np.sqrt(f)))
 
 def delta_fanno(M,L,f,D,gamma):
@@ -140,6 +159,11 @@ def delta_mass_static(M,mdot,P,Rs,To,gamma,A):
     return mdot/1000 - P*(1+(gamma-1)/2*M*M)**(gamma/(gamma-1))*A*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
 
 def delta_mass_stag(M,mdot,Po,Rs,To,gamma,A):
+    '''
+    expected inputs:
+    mdot in g/s
+    Po   in Pa
+    '''
     return mdot/1000 - A*Po*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**((-(gamma+1))/(2*(gamma-1)))
 
 def fanno_po_ratio(M,gamma):
