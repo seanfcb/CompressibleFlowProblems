@@ -4,9 +4,6 @@ from CompressibleFlowFunctions import *
 from fannocvloss import *
 ##### This script runs the input file fannocvloss.py
 
-def flowrates(P2,P1,Cv,SG,Q):
-    return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2))/np.sqrt(SG) - Q ##From the Deltrol catalog, equation relating volume flow rate Q to
-
 
 ### Define parameters
 Q          = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14.7 psia and 60F.
@@ -31,7 +28,7 @@ print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_
 
 #Calculating Mach and pressure before the green valve.
 Lstar   = Lstar_fanno(fanning,Dpipe,M_initial,gamma)
-L_int   = Lstar - 0.3
+L_int   = Lstar - 0.4572
 M       = mach_fanno(L_int,fanning,Dpipe,gamma)
 Poratf  = fanno_po_ratio(M_initial,gamma)
 Postar  = Po1_initial/Poratf
@@ -147,13 +144,8 @@ print("Before check valve",round(P1,2),round(Po_bval,2),round(M,4))
 P1 = bisect(flowrates, 0.001, P1,args=(P1,Cv_check,SG,Q))
 Mf  = bisect(delta_mass_static,0.0001,0.99,args=(mdot,P1*101325/14.7,Rs,To,gamma,Apipe))
 Pof = P1*(1+((gamma-1)/2)*Mf**2)**((gamma)/(gamma-1))
-print("After needle valve",round(P1,2),round(Pof,2),round(Mf,4))
+print("After check valve",round(P1,2),round(Pof,2),round(Mf,4))
 
 # print("The static pressure after the check valve is {} psi".format(P1))
 # print("The Mach number after the check valve is {} ".format(Mf))
 # print("The stagnation pressure after the check valve is {} psi".format(Pof))
-
-# #Calculating the effective area\
-# m_star = mass_from_area(Mf,Pof*101325/14.7,To,Rs,gamma,Apipe)*1000
-# Aeff = area_from_mass(Pof*101325/14.7,To,Rs,gamma,m_star/1000) #assuming a choked line
-# print("The effective area of the oxygen line is {} sq. mm at {} g/s".format(Aeff*1e6,mdot))
