@@ -94,4 +94,4 @@ print("Sequence:","P_static","P_total","Mach number")
 print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_inlet,4))
 
 
-fanning = bisect(fanning_search,0.0025,0.003,args=(Lstar_measured,L_diptube,L_flex1,L_flex2,L_aflange,Dpipe,gamma,Po1_initial,Cv_green,Cv_solen,mdot,Rs,To,Q,SG))
+fanning = bisect(fanning_search,0.0025,0.003,args=(Lstar_measured,L_diptube,L_flex1,L_flex2,L_aflange,Dpipe,gamma,Po1_initial,Cv_green,Cv_solen,mdot,Rs,To,Q,SG))#,full_output=True)
