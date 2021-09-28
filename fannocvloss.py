@@ -6,7 +6,7 @@ gamma      = 1.4 #gamma of oxygen
 To         = 300
 Rs         = 8314.5/Mm # calculate the specific gas constant
 SG         = 1.1044 #specific gravity of O2 vs Air
-mdot       = 155 #grams per second
+mdot       = 180 #grams per second
 mu         = 12e-6
 
 # ##Quantities specific to Ethylene (C2H4)
@@ -40,3 +40,11 @@ Cv_solen   = 1.5 #catalog Cv for solenoid valve
 Cv_nvalv   = 0.917 #catalog Cv for needle valve
 Cv_check   = 1.8 #catalog Cv for check valve
 Po1_initial = 800 #Bottle pressure (psi)
+
+## Pipe lengths (currently approx)
+L_diptube     = 1.5/3.281
+L_to_black    = 6/3.281
+L_to_solen    = 0.5/3.281
+L_to_needle   = 1/3.281
+L_to_check    = 5/3.281
+L_thru_flange = 5/3.281

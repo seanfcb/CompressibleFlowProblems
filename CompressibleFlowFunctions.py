@@ -10,9 +10,15 @@ def fanno_losses(fanning,Po1_initial,Lstar,Lpipe,Dpipe,M_inlet,gamma):
     M       = mach_fanno(L_int,fanning,Dpipe,gamma)
     Poratf  = fanno_po_ratio(M_inlet,gamma)
     Postar  = Po1_initial/Poratf
-    Po2 = Postar*fanno_po_ratio(M,gamma)
+    Po2     = Postar*fanno_po_ratio(M,gamma)
     P2      = p_from_pratio(Po2,gamma,M)
     return P2, Po2, M, L_int
+
+def valve_losses(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
+    P2 = bisect(flowrates, 0, P1,args=(P1,Cv,SG,Q))
+    M_aval  = bisect(delta_mass_static,0.0001,0.99,args=(mdot,P2*101325/14.7,Rs,To,gamma,Apipe))
+    Po_aval = P2*(1+((gamma-1)/2)*M_aval**2)**((gamma)/(gamma-1))
+    return P2,M_aval,Po_aval
 
 def flowrates(P2,P1,Cv,SG,Q):
     '''
