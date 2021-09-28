@@ -12,7 +12,7 @@ Dpipe      = Dopipe-2*PipeT
 Dpipe      = Dpipe*0.0254
 Apipe      = np.pi*Dpipe**2/4
 fanning    = 0.002241746878251434 ## Calculated using the find_fanning.py script
-
+Lpipe      = L_diptube+L_to_black+L_to_solen+L_to_needle+L_to_check+L_thru_flange
 
 #Calculate the Mach number at the inlet of the pipe.
 Po1_metric = Po1_initial*101325/14.7
@@ -24,6 +24,8 @@ print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_
 
 #Calculating Mach and pressure before the green valve.
 Lstar   = Lstar_fanno(fanning,Dpipe,M_initial,gamma)
+print("Lstar = ",Lstar)
+print("Lpipe = ",Lpipe)
 P1, Po_bval, M, L_int = fanno_losses(fanning,Po1_initial,Lstar,L_diptube,Dpipe,M_initial,gamma)
 print("Before green valve",round(P1,2),round(Po_bval,2),round(M,4))
 
@@ -72,5 +74,7 @@ print("After check valve",round(P1,2),round(Po_aval,2),round(M_aval,4))
 
 #Friction losses into chamber
 Lstar   = Lstar_fanno(fanning,Dpipe,M_aval,gamma)
+print("Lstar = ",Lstar)
+print("Lremaining = ",L_thru_flange)
 P1, Po_bval, M, L_int = fanno_losses(fanning,Po_aval,Lstar,L_thru_flange,Dpipe,M_aval,gamma)
 print("Open end: ",round(P1,2),round(Po_bval,2),round(M,4))

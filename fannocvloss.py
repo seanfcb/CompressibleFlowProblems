@@ -32,7 +32,7 @@ mu         = 12e-6
 
 ## Flow system specific quantities
 epsilon    = 0.25e-6
-Dopipe     = 3/8 #inches to meters
+Dopipe     = 3/8 #inches
 PipeT      = 0.049 #wall thickness in inches
 Cv_green   = 7 #catalog Cv for green valve
 Cv_black   = 1.5 #catalog Cv for black valve
