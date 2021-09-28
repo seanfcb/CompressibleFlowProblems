@@ -5,12 +5,13 @@ from CompressibleFlowFunctions import *
 def fanning_search(fanning,Lstar_measured,L_diptube,L_flex1,L_flex2,L_aflange,Dpipe,gamma,Po1_initial,Cv_green,Cv_solen,mdot,Rs,To,Q,SG):
     ##Calculate P, Po, M before green valve
 
-    L_int   = Lstar_measured - L_diptube
-    M       = mach_fanno(L_int,fanning,Dpipe,gamma)
-    Poratf  = fanno_po_ratio(M_inlet,gamma)
-    Postar  = Po1_initial/Poratf
-    Po_bval = Postar*fanno_po_ratio(M,gamma)
-    P1      = p_from_pratio(Po_bval,gamma,M)
+    # L_int   = Lstar_measured - L_diptube
+    # M       = mach_fanno(L_int,fanning,Dpipe,gamma)
+    # Poratf  = fanno_po_ratio(M_inlet,gamma)
+    # Postar  = Po1_initial/Poratf
+    # Po_bval = Postar*fanno_po_ratio(M,gamma)
+    # P1      = p_from_pratio(Po_bval,gamma,M)
+    P1, Po_bval, M, L_int = fanno_losses(fanning,Po1_initial,Lstar_measured,L_diptube,Dpipe,M_inlet,gamma)
     print("Begin iteration")
     print("Sequence:","P_static","P_total","Mach number")
     print("Before green valve",round(P1,2),round(Po_bval,2),round(M,4))

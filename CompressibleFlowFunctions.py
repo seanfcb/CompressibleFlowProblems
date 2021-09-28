@@ -5,6 +5,15 @@ from scipy.optimize import bisect
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
 
+def fanno_losses(fanning,Po1_initial,Lstar,Lpipe,Dpipe,M_inlet,gamma):
+    L_int   = Lstar - Lpipe
+    M       = mach_fanno(L_int,fanning,Dpipe,gamma)
+    Poratf  = fanno_po_ratio(M_inlet,gamma)
+    Postar  = Po1_initial/Poratf
+    Po2 = Postar*fanno_po_ratio(M,gamma)
+    P2      = p_from_pratio(Po2,gamma,M)
+    return P2, Po2, M, L_int
+
 def flowrates(P2,P1,Cv,SG,Q):
     '''
     Expected inputs:
