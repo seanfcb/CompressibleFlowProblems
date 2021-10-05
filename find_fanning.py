@@ -4,38 +4,45 @@ from CompressibleFlowFunctions import *
 
 def fanning_search(fanning,Lstar_measured,L_diptube,L_flex1,L_flex2,L_aflange,Dpipe,gamma,Po1_initial,Cv_green,Cv_solen,mdot,Rs,To,Q,SG):
     ##Calculate P, Po, M before green valve
-    M_inlet = mach_fanno(Lstar_measured,fanning,Dpipe,gamma) ##Use the Fanno equations to calculate Mach number
+    #M_inlet = mach_fanno(Lstar_measured,fanning,Dpipe,gamma) ##Use the Fanno equations to calculate Mach number
+    M_inlet    = bisect(delta_mass_stag,0.0001,0.99,args=(mdot,Po1_metric,Rs,To,gamma,Apipe))
     P1_initial = p_from_pratio(Po1_initial,gamma,M_inlet)
+    Lstar1     = Lstar_fanno(fanning,Dpipe,M_inlet,gamma)
     print("Begin iteration")
-    print("Sequence:","P_static","P_total","Mach number")
-    print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_inlet,4))
-    P1, Po_bval, M, L_int = fanno_losses(fanning,Po1_initial,Lstar_measured,L_diptube,Dpipe,M_inlet,gamma)
+    print("Sequence:","P_static","P_total","Mach number","Lstar")
+    print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_inlet,4),round(Lstar1,4))
+    P1, Po_bval, M, L_int = fanno_losses(fanning,Po1_initial,Lstar1,L_diptube,Dpipe,M_inlet,gamma)
     print("Before green valve",round(P1,2),round(Po_bval,2),round(M,4))
 
     #Static and Stagnation Pressure drop through green valve
     P1,M_aval,Po_aval = valve_losses(P1,Cv_green,SG,Q,mdot,Rs,To,gamma,Apipe)
-    print("After green valve",round(P1,2),round(Po_aval,2),round(M_aval,4))
+    Lstar2     = Lstar_fanno(fanning,Dpipe,M_aval,gamma)
+    print("After green valve",round(P1,2),round(Po_aval,2),round(M_aval,4),round(Lstar2,4))
 
     ##Calculate P, Po, M before solenoid valve
-    Lstar_measured = L_int
-    P1, Po_bval, M, L_int = fanno_losses(fanning,Po_aval,Lstar_measured,L_flex1,Dpipe,M_aval,gamma)
+    #Lstar_measured = L_int
+    P1, Po_bval, M, L_int = fanno_losses(fanning,Po_aval,Lstar2,L_flex1,Dpipe,M_aval,gamma)
     print("Before solenoid valve",round(P1,2),round(Po_bval,2),round(M,4))
 
     #Static and Stagnation Pressure drop through solenoid valve
+
     P1,M_aval,Po_aval = valve_losses(P1,Cv_solen,SG,Q,mdot,Rs,To,gamma,Apipe)
-    print("After solenoid valve",round(P1,2),round(Po_aval,2),round(M_aval,4))
+    Lstar3     = Lstar_fanno(fanning,Dpipe,M_aval,gamma)
+    print("After solenoid valve",round(P1,2),round(Po_aval,2),round(M_aval,4),round(Lstar3,4))
 
     ##Calculate P, Po, M at open end of pipe in chamber
-    Lstar_measured = L_int
-    P1, Po_bval, M_out, L_int = fanno_losses(fanning,Po_aval,Lstar_measured,L_asolenoid,Dpipe,M_aval,gamma)
+    #Lstar_measured = L_int
+    P1, Po_bval, M_out, L_int = fanno_losses(fanning,Po_aval,Lstar3,L_aflange,Dpipe,M_aval,gamma)
     Aeff    = area_from_mass(Po_bval*101325/14.7,To,Rs,gamma,mdot/1000)*1e6
+    Aeffm   = 21
     print("Open end",round(P1,2),round(Po_bval,2),round(M_out,4))
     print("effective area: ",Aeff)
-    print("effective area - pipe area: ",round(Aeff-Apipe*1e6,6))
+    #print("effective area - pipe area: ",round(Aeff-Apipe*1e6,6))
     print("fanning friction factor: ",fanning)
     print("End iteration")
-    
-    return Apipe*1e6-Aeff
+
+    #return Aeff-Apipe
+    return Lstar3-(L_aflange)
 
 
 ## Known quantities
@@ -68,4 +75,4 @@ Apipe      = np.pi*Dpipe**2/4
 ##Calculate the volume flow rate Q
 Q         = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14.7 psia and 60F.
 
-fanning = bisect(fanning_search,0.002,0.0025,args=(Lstar_measured,L_diptube,L_flex1,L_flex2,L_aflange,Dpipe,gamma,Po1_initial,Cv_green,Cv_solen,mdot,Rs,To,Q,SG))#,full_output=True)
+fanning = bisect(fanning_search,0,0.00225,args=(Lstar_measured,L_diptube,L_flex1,L_flex2,L_aflange,Dpipe,gamma,Po1_initial,Cv_green,Cv_solen,mdot,Rs,To,Q,SG))#,full_output=True)

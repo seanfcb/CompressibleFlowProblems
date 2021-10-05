@@ -15,12 +15,15 @@ def fanno_losses(fanning,Po1_initial,Lstar,Lpipe,Dpipe,M_inlet,gamma):
     return P2, Po2, M, L_int
 
 def valve_losses(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
-    P2 = bisect(flowrates, 0, P1,args=(P1,Cv,SG,Q))
+    #P2 = bisect(flowrates, 0, P1,args=(P1,Cv,SG,Q))
+    P2 = bisect(flowrates,0,P1,args=(P1,Cv,SG,Q))
     M_aval  = bisect(delta_mass_static,0.0001,0.99,args=(mdot,P2*101325/14.7,Rs,To,gamma,Apipe))
-    Po_aval = P2*(1+((gamma-1)/2)*M_aval**2)**((gamma)/(gamma-1))
+    Po_aval = P2/(1+((gamma-1)/2)*M_aval**2)**(-(gamma)/(gamma-1))
     return P2,M_aval,Po_aval
 
-def flowrates(P2,P1,Cv,SG,Q):
+def flowrates(P2,P1,Cv,SG,Q):#(P2,P1,Cv,SG,Q):
+    # Kappa = Q*np.sqrt(SG)/(42.2*Cv)
+    # return np.sqrt(P1**2-Kappa**2)
     '''
     Expected inputs:
     P1 and P2: Pressures upstream and downstream, PSI
@@ -157,7 +160,7 @@ def colebrook_white(f,Re,D,epsilon):
     D       : Pipe diameter
     epsilon : Surface roughness in micrometers
     '''
-    return 1/np.sqrt(f) - (-2)*np.log10(epsilon/3.7*D + 2.51/(Re*np.sqrt(f)))
+    return 1/np.sqrt(f) - (-2)*np.log10(epsilon/(3.7*D) + 2.51/(Re*np.sqrt(f)))
 
 def delta_fanno(M,L,f,D,gamma):
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))-4*f*L/D
@@ -167,7 +170,7 @@ def Lstar_fanno(f,D,M,gamma): #Define the Fanno equation to iterate on
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))*D/(4*f)
 
 def mach_fanno(L,f,D,gamma): #Define the Fanno equation to iterate on
-    M = bisect(delta_fanno,0.001,1,args=(L,f,D,gamma))
+    M = bisect(delta_fanno,0.001,0.99,args=(L,f,D,gamma))
     return M
 
 def delta_mass_static(M,mdot,P,Rs,To,gamma,A):
@@ -183,22 +186,3 @@ def delta_mass_stag(M,mdot,Po,Rs,To,gamma,A):
 
 def fanno_po_ratio(M,gamma):
     return (1/M)*((2+(gamma-1)*M**2)/(gamma+1))**((gamma+1)/(2*(gamma-1)))
-
-def fanno_pressure_drop(Po1,mdot,Rs,To,gamma,Apipe,mu,epsilon): ##incomplete function
-    #Given an initial Po, this function calculates following:
-    #Step 1) Calculate the Reynolds Number.
-    #Step 2) Calculate the Fanning friction factor using the Colebrook-White Equation
-    #Step 3) Calculate flow properties after a given length of pipe
-    ## Step 1)
-    Dpipe = np.sqrt(4*Apipe/np.pi)
-    Po1   = Po1*101325/14.7
-    M1    = bisect(delta_mass_stag,0.0001,0.99,args=(mdot,Po1,Rs,To,gamma,Apipe))
-    P1    = p_from_pratio(Po1,gamma,M1)
-    T1    = T_from_Tratio(To,gamma,M1)
-    rho1  = P1/(T1*Rs)
-    Re    = rho1*M1*np.sqrt(gamma*Rs*T1)*Dpipe/mu
-    #Step 2
-    darcy = bisect(colebrook_white,1e-6,1,args=(Re,Dpipe,epsilon))
-    fanning = darcy/4
-    #Step 3)
-    Lstar = Lstar_fanno()

@@ -6,7 +6,7 @@ gamma      = 1.4 #gamma of oxygen
 To         = 300
 Rs         = 8314.5/Mm # calculate the specific gas constant
 SG         = 1.1044 #specific gravity of O2 vs Air
-mdot       = 180 #grams per second
+mdot       = 150 #grams per second
 mu         = 12e-6
 
 # ##Quantities specific to Ethylene (C2H4)

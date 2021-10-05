@@ -6,7 +6,7 @@ from fannocvloss import *
 
 
 ### Define parameters
-mdot       = 156.088 ## This value overrides mdot in the input script fannocvloss.py
+mdot       = 156 ## This value overrides mdot in the input script fannocvloss.py
 Q          = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14.7 psia and 60F.
 Dpipe      = Dopipe-2*PipeT
 Dpipe      = Dpipe*0.0254
@@ -18,6 +18,11 @@ Lpipe      = L_diptube+L_to_black+L_to_solen+L_to_needle+L_to_check+L_thru_flang
 Po1_metric = Po1_initial*101325/14.7
 M_initial  = bisect(delta_mass_stag,0.0001,0.99,args=(mdot,Po1_metric,Rs,To,gamma,Apipe))
 P1_initial = p_from_pratio(Po1_initial,gamma,M_initial)
+##new block
+# T = T_from_Tratio(To,gamma,M_initial)
+# Re = P1_initial*101325/14.7*Dpipe*M_initial*np.sqrt(gamma/(Rs*T))/mu
+# fanning    = bisect(colebrook_white,0,1,args=(Re,Dpipe,epsilon))/4
+##end block
 print("Sequence:","P_static","P_total","Mach number")
 print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_initial,4))
 
