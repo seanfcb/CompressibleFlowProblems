@@ -29,7 +29,7 @@ try:
     darcy = bisect(colebrook_white,1e-6,1,args=(Re,Dpipe,epsilon))
     fanning = darcy/4
     badmath = 1/0
-except:
+except Exception as err:
     print("No.")
 tabular_print("Sequence:","P_static","P_total","Mach number","Lstar")
 tabular_print("At the dip-stick inlet",round(P1_initial,2),round(Po1_initial,2),round(M_initial,4))
