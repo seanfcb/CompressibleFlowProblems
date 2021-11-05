@@ -161,7 +161,8 @@ def colebrook_white(f,Re,D,epsilon):
     epsilon : Surface roughness in micrometers
     '''
     return 1/np.sqrt(f) - (-2)*np.log10(epsilon/(3.7*D) + 2.51/(Re*np.sqrt(f)))
-
+def fanno_equation(M,gamma):
+    return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))
 def delta_fanno(M,L,f,D,gamma):
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))-4*f*L/D
 

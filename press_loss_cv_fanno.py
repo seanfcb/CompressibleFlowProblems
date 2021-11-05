@@ -6,9 +6,10 @@ from fannocvloss import *
 
 
 ### Define parameters
+mdot = 450
 Q          = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14.7 psia and 60F.
 Dpipe      = Dopipe-2*PipeT
-Dpipe      = Dpipe*0.0254
+Dpipe      = (0.75-2*0.065)*0.0254#Dpipe*0.0254
 Apipe      = np.pi*Dpipe**2/4
 
 
