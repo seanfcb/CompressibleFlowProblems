@@ -6,7 +6,7 @@ gamma      = 1.4 #gamma of oxygen
 To         = 300
 Rs         = 8314.5/Mm # calculate the specific gas constant
 SG         = 1.1044 #specific gravity of O2 vs Air
-mdot       = 150 #grams per second
+mdot       = 600 #grams per second
 mu         = 12e-6
 gammarat   = (gamma+1)/(gamma-1)
 
@@ -34,20 +34,18 @@ gammarat   = (gamma+1)/(gamma-1)
 
 ## Flow system specific quantities
 epsilon     = 0.25e-6
-Dopipe      = 3/8 #inches
-PipeT       = 0.049 #wall thickness in inches
-Cv_green    = 7 #catalog Cv for green valve
-Cv_black    = 1.5 #catalog Cv for black valve
-Cv_solen    = 1.5 #catalog Cv for solenoid valve
-Cv_nvalv    = 0.917 #catalog Cv for needle valve
-Cv_check    = 1.8 #catalog Cv for check valve
+Dopipe      = 3/4 #inches
+PipeT       = 0.065 #wall thickness in inches
+Cv_ballv    = 13.6
+Cv_nvalv    = 9.6 #catalog Cv for needle valve
+Cv_check    = 4.7 #catalog Cv for check valve
 Po1_initial = 800 #Bottle pressure (psi)
 Po1_metric  = Po1_initial*101325/14.7
 
 ## Pipe lengths (currently approx)
-L_diptube     = 1.5/3.281
-L_to_black    = 6/3.281
-L_to_solen    = 0.5/3.281
+L_to_bval1    = 1.5/3.281
+L_to_bval2    = 6/3.281
 L_to_needle   = 1/3.281
-L_to_check    = 5/3.281
+L_to_bval3    = 1/3.281
+L_to_check    = (2/12)/3.281
 L_thru_flange = 5/3.281
