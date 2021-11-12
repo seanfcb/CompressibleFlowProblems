@@ -30,11 +30,12 @@ def tabular_print(*args):
 # ## Define parameters
 # ##==================================================================##
 #
+mdot = 964
 Q          = mdot_to_scfh(mdot,Rs,SG) #Volumetric Flow rate in scfh of air at 14.7 psia and 60F.
 Dpipe      = Dopipe-2*PipeT
 Dpipe      = Dpipe*0.0254 #(0.75-2*0.065)*0.0254
 Apipe      = np.pi*Dpipe**2/4
-P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1_initial,Po1_metric,To,gamma,mu,epsilon,L_to_bval1)
+P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1_initial,Po1_initial*101325/14.7,To,gamma,mu,epsilon,L_to_bval1)
 tabular_print("Location","P_static","P_total","Mach number","Lstar")
 tabular_print("At the pipe inlet",round(P1,2),round(Po1,2),round(M1,4))
 tabular_print("Before bottle valve",round(P2,2),round(Po2,2),round(M2,4),Lstar)
@@ -52,7 +53,7 @@ tabular_print("After bottle valve",round(P1,2),round(Po1,2),round(M1,4),Lstar)
 ##==================================================================##
 #Part 1
 ##==================================================================##
-P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L_to_bval2)
+P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1*101325/14.7,To,gamma,mu,epsilon,L_to_bval2)
 tabular_print("Before manual interlock valve",round(P2,2),round(Po2,2),round(M2,4),Lstar)
 
 ##==================================================================##
@@ -68,7 +69,7 @@ tabular_print("After manual interlock valve",round(P1,2),round(Po1,2),round(M1,4
 ##==================================================================##
 #Part 1
 ##==================================================================##
-P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L_to_needle)
+P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1*101325/14.7,To,gamma,mu,epsilon,L_to_needle)
 tabular_print("Before needle valve",round(P2,2),round(Po2,2),round(M2,4),Lstar)
 
 ##==================================================================##
@@ -83,7 +84,7 @@ tabular_print("After needle valve",round(P1,2),round(Po1,2),round(M1,4),Lstar)
 ##==================================================================##
 #Part 1
 ##==================================================================##
-P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L_to_bval3)
+P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1*101325/14.7,To,gamma,mu,epsilon,L_to_bval3)
 tabular_print("Before run valve",round(P2,2),round(Po2,2),round(M2,4),Lstar)
 
 ##==================================================================##
@@ -98,7 +99,7 @@ tabular_print("After run valve",round(P1,2),round(Po1,2),round(M1,4),Lstar)
 ##==================================================================##
 #Part 1
 ##==================================================================##
-P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L_to_check)
+P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1*101325/14.7,To,gamma,mu,epsilon,L_to_check)
 tabular_print("Before check valve",round(P2,2),round(Po2,2),round(M2,4),Lstar)
 
 ##==================================================================##
@@ -110,7 +111,7 @@ fanning    = darcy/4
 Lstar   = Lstar_fanno(fanning,Dpipe,M1,gamma)
 tabular_print("After check valve",round(P1,2),round(Po1,2),round(M1,4),Lstar)
 
-P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L_thru_flange)
+P1, Po1, M1, Lstar, P2, Po2, M2, Re = fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1*101325/14.7,To,gamma,mu,epsilon,L_thru_flange)
 tabular_print("Before engine",round(P2,2),round(Po2,2),round(M2,4),Lstar)
 
 

@@ -47,5 +47,5 @@ L_to_bval1    = 1.5/3.281
 L_to_bval2    = 6/3.281
 L_to_needle   = 1/3.281
 L_to_bval3    = 1/3.281
-L_to_check    = (2/12)/3.281
+L_to_check    = 1.66667/3.281#(2/12)/3.281
 L_thru_flange = 5/3.281

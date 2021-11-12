@@ -44,6 +44,7 @@ def fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L):
     Lstar1   = Lstar_fanno(fanning,Dpipe,M1,gamma)
     L_int   = Lstar1 - L
     M2      = mach_fanno(L_int,fanning,Dpipe,gamma)
+    print(M1, M2)
     Poratf  = fanno_po_ratio(M1,gamma)
     Postar  = Po1/Poratf
     Po2     = Postar*fanno_po_ratio(M2,gamma)
