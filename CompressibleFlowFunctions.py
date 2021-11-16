@@ -61,10 +61,9 @@ def valve_losses(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
     Po_aval = P2/(1+((gamma-1)/2)*M_aval**2)**(-(gamma)/(gamma-1))
     return P2,M_aval,Po_aval
 
-def flowrates(P2,P1,Cv,SG,Q):#(P2,P1,Cv,SG,Q):
-    # Kappa = Q*np.sqrt(SG)/(42.2*Cv)
-    # return np.sqrt(P1**2-Kappa**2)
+def flowrates(P2,P1,Cv,SG,Q):
     '''
+    Calculates the static pressure drop through a flow device rated by Cv
     Expected inputs:
     P1 and P2: Pressures upstream and downstream, PSI
     Cv       : Flow coefficient
@@ -74,13 +73,30 @@ def flowrates(P2,P1,Cv,SG,Q):#(P2,P1,Cv,SG,Q):
     return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2))/np.sqrt(SG) - Q ##From the Deltrol catalog, equation relating volume flow rate Q to
 
 def area_from_mass(Po,To,Rs,gamma,mdot):
-    """Function calculates the choking area using the compressible area ratio"""
+    '''
+    Function calculates the choking area using the compressible area ratio
+    Expected inputs:
+    Po       : Stagnation pressure, Pa
+    To       : Stagnation temperature, K
+    Rs       : Specific gas constant, J/kgK (double check units)
+    gamma    : Ratio of specific heats
+    mdot     : Mass flow rate, kg/s
+    '''
     Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     Astar = mdot/Gstar
     return Astar
 
 def mass_from_area(M,Po,To,Rs,gamma,Area):
-    ##Function calculates the mass flow rate using the compressible area ratio
+    '''
+    Function calculates the mass flow rate using the compressible area ratio
+    Expected inputs:
+    M        : Mach number
+    Po       : Stagnation pressure, Pa
+    To       : Stagnation temperature, K
+    Rs       : Specific gas constant, J/kgK (double check units)
+    gamma    : Ratio of specific heats
+    Area     : Pipe area, sq. m
+    '''
     #Astar = np.pi*Dpipe*Dpipe/4
     #Gstar = Po*np.sqrt(gamma/Rs/To)*((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
     Gstar = Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))##We call Gstar the ratio mdot/Astar
@@ -88,12 +104,23 @@ def mass_from_area(M,Po,To,Rs,gamma,Area):
     return mdot
 
 def prat_from_mach(gamma,M):
-    ##For a known pre-shock mach number, what is the stagnation pressure ratio
+    '''
+    For a known pre-shock mach number, what is the stagnation pressure ratio
+    Expected inputs:
+    M        : Mach number
+    gamma    : Ratio of specific heats
+    '''
     pratio = (((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1))
     return pratio
 
 def mach_from_pressure_ratio(Po1,Po2,gamma):
-    ##For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
+    '''
+    For a desired stagnation pressure ratio, this function calculates the Mach number before a NSW
+        Expected inputs:
+        Po1      : Stagnation pressure before a normal shock wave, units same as Po2
+        Po2      : Stagnation pressure after a normal shock wave, units same as Po1
+        gamma    : Ratio of specific heats
+    '''
     Por  = Po2/Po1 ##Desired pressure ratio
     def Prat(Mi,gamma,Por):
         return (((gamma+1)*Mi*Mi)/((gamma-1)*Mi*Mi+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*Mi*Mi-(gamma-1)))**(1/(gamma-1)) - Por
@@ -101,22 +128,46 @@ def mach_from_pressure_ratio(Po1,Po2,gamma):
     return M
 
 def mach_after_shock(M1,gamma):
-    ##Calculates the Mach number after a NSW knowing the pre-shock Mach number
+    '''
+    Calculates the Mach number after a NSW knowing the pre-shock Mach number
+    Expected inputs:
+    M1       : Mach number
+    gamma    : Ratio of specific heats
+    '''
     M2 = np.sqrt(((gamma-1)*M1*M1+2)/(2*gamma*M1*M1-(gamma-1)))
     return M2
 
 def pstatic_after_shock(M,gamma,P):
-    ##Calculates the static pressure after a NSW knowing the pre-choke Mach number, gamma, and static pressure
+    '''
+    Calculates the static pressure after a NSW knowing the pre-choke Mach number, gamma, and static pressure
+    Expected inputs:
+    M        : Mach number
+    gamma    : Ratio of specific heats
+    P        : Static pressure before a normal shock wave
+    '''
     P2 = P*(2*gamma*M*M-(gamma-1))/(gamma+1)
     return P2
 
 def pstag_after_shock(M,gamma,Po1):
-    ##Calculates the stagnation pressure after a NSW knowing the pre-choke Mach number, gamma
+    '''
+    Calculates the stagnation pressure after a NSW knowing the pre-choke Mach number, gamma
+    Expected inputs:
+    M        : Mach number
+    gamma    : Ratio of specific heats
+    Po1      : Stagnation pressure before a normal shock wave
+    '''
     Po2 = Po1*(((gamma+1)*M*M)/((gamma-1)*M*M+2))**(gamma/(gamma-1))*((gamma+1)/(2*gamma*M*M-(gamma-1)))**(1/(gamma-1)) ##Solution from the NSW stagnation pressure ratio equation.
     return Po2
 
 def astar_all_else_known(Dpipe,M,gamma):
-    ##Function calculates the choking area using the compressible area ratio knowing all other properties
+    '''
+    Function calculates the choking area using the compressible area ratio knowing all other properties
+    Expected inputs:
+    Dpipe    : Diameter of pipe, meters
+    M        : Mach number
+    gamma    : Ratio of specific heats
+
+    '''
     Apipe  = np.pi*Dpipe**2/4
     Aratio = aratio_from_mach(M,gamma)
     Astar  = Apipe/Aratio
@@ -124,6 +175,17 @@ def astar_all_else_known(Dpipe,M,gamma):
     return Astar, Dstar
 
 def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,subsuper):
+    '''
+    Calculates the Mach number knowing all other flow properties. This function allows the user to specify whether to resolve to the subsonic or supersonic branch
+    Expected inputs:
+    Po       : Stagnation pressure, Pa
+    Rs       : Specific gas constant, J/kgK (double check units)
+    To       : Stagnation temperature, K
+    gamma    : Ratio of specific heats
+    mdot     : Mass flow rate, kg/s
+    Dpipe    : Diameter of pipe, meters
+    subsuper : Specify either 'subsonic' or 'supersonic'
+    '''
     Apipe = np.pi*Dpipe*Dpipe/4
     def delta_G(M,Po,Rs,To,gamma,mdot,Apipe):
         return mdot/Apipe - Po*np.sqrt(gamma/Rs/To)*M*(1+(gamma-2)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
@@ -136,9 +198,15 @@ def mach_from_G(Po,Rs,To,gamma,mdot,Dpipe,subsuper):
 
     return M
 
-def mach_from_aratio(Aexit,Astar,gamma,subsuper):
-    ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
-    Apipe   = Aexit
+def mach_from_aratio(Apipe,Astar,gamma,subsuper):
+    '''
+    Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
+    Expected inputs:
+    Apipe    : Pipe area, sq. m
+    Astar    : Choking area, sq. m
+    gamma    : Ratio of specific heats
+    subsuper : Specify either 'subsonic' or 'supersonic'
+    '''
     def arat_delta(M,gamma,Apipe,Astar):
         return Apipe/Astar - aratio_from_mach(M,gamma)
     if subsuper == 'subsonic':
@@ -149,9 +217,18 @@ def mach_from_aratio(Aexit,Astar,gamma,subsuper):
         sys.exit('Please specify whether you want to resolve to the "subsonic" or "supersonic" branch when calling mach_from_aratio')
     return M
 
-def mach_from_massflow(Aexit,mdot,Po,To,Rs,gamma,subsuper):
-    ##Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
-    Apipe   = Aexit
+def mach_from_massflow(Apipe,mdot,Po,To,Rs,gamma,subsuper):
+    '''
+    Function calculates the Mach number at a given location using the compressible area ratio knowing all other properties
+    Expected inputs:
+    Apipe    : Pipe area, sq. m
+    mdot     : Mass flow rate, kg/s
+    Po       : Stagnation pressure, Pa
+    To       : Stagnation temperature, K
+    Rs       : Specific gas constant, J/kgK (double check units)
+    gamma    : Ratio of specific heats
+    subsuper : Specify either 'subsonic' or 'supersonic'
+    '''
     Dpipe   = np.sqrt(4*Apipe/np.pi)
     def g_delta(M,Po,To,Rs,gamma,Dpipe,Apipe,mdot):
         return mdot/Apipe - mass_from_area(M,Po,To,Rs,gamma,Dpipe)
@@ -165,21 +242,46 @@ def mach_from_massflow(Aexit,mdot,Po,To,Rs,gamma,subsuper):
     return M
 
 def aratio_from_mach(M,gamma):
-    #Function calculates the compressible area ratio A/Astar knowing the Mach number and gamma
+    '''
+    Function calculates the compressible area ratio A/Astar knowing the Mach number and gamma
+    Expected inputs:
+    M        : Mach number
+    gamma    : Ratio of specific heats
+    '''
     Aratio = ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1)))*(1+(gamma-1)/2*M*M)**((gamma+1)/(2*(gamma-1)))/M
     return Aratio
 
 def p_from_pratio(Po,gamma,M):
-    ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
+    '''
+    Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
+    Expected inputs:
+    Po       : Stagnation pressure, any units can be used. Static pressure will be returned in the same units provided for stagnation pressure
+    gamma    : Ratio of specific heats
+    M        : Mach number
+    '''
     P_static = Po*(1+((gamma-1)/2)*M**2)**(-(gamma)/(gamma-1))
     return P_static
 
 def T_from_Tratio(To,gamma,M):
-    ##Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
+    '''
+    Function calculates the static pressure knowing the gas properties, Mach number, and stagnation pressure using the isentropic pressure ratio equation P/Po
+    Expected inputs:
+    To       : Stagnation temperature, K
+    gamma    : Ratio of specific heats
+    M        : Mach number
+
+    '''
     T_static = To/(1+((gamma-1)/2)*M**2)
     return T_static
 
 def mdot_to_scfh(mdot,Rs,G):
+    '''
+    Function calculates the volumetric flow rate in standard cubic feet per hour (scfh) of Nitrogen.
+    Expected inputs:
+    mdot     : Mass flow rate, in g/s
+    Rs       : Specific gas constant, J/kgK (double check units)
+    G        : Specific gravity of the studied fluid
+    '''
     mdot = mdot*60*2.205/1000 #g/s to lbm/min
     rho  = 101325/(Rs*288.7)*2.205/(3.28084**3) #calculate the stp density, converting to lb/cu.ft
     Q    = mdot/rho
@@ -187,6 +289,12 @@ def mdot_to_scfh(mdot,Rs,G):
     return scfh
 
 def hole_numbers(Dhole,Astar):
+    '''
+    Function calculates the number of holes on an injector knowing the choking area Astar and the drill diameter.
+    Expected inputs:
+    Dhole    : Hole diameter. Units compatible with Astar
+    Astar    : Choking area. Units compatible with Dhole
+    '''
     numholes = 4*Astar/np.pi/Dhole/Dhole
     return numholes
 
@@ -201,27 +309,75 @@ def colebrook_white(f,Re,D,epsilon):
     epsilon : Surface roughness in micrometers
     '''
     return 1/np.sqrt(f) - (-2)*np.log10(epsilon/(3.7*D) + 2.51/(Re*np.sqrt(f)))
+
 def fanno_equation(M,gamma):
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))
+
+
 def delta_fanno(M,L,f,D,gamma):
+    '''
+    Function returns the sum of the left hand side and right hand side of the Fanno equation.
+    Expected inputs:
+    M       : Inlet Mach number
+    L       : Choking pipe length
+    f       : Fanning friction factor
+    D       : Pipe diameter
+    gamma   : Ratio of specific heats
+    '''
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))-4*f*L/D
 
+
+
 def Lstar_fanno(f,D,M,gamma): #Define the Fanno equation to iterate on
-    #return (D/(4*f))*((1-M**2)/(gamma*M**2)+(gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))
+    '''
+    Function directly calculates Lstar in the Fanno equation.
+    Expected inputs:
+    f       : Fanning friction factor
+    D       : Pipe diameter
+    M       : Inlet Mach number
+    gamma   : Ratio of specific heats
+    '''
+
     return ((1-M**2)/(gamma*M**2) + (gamma+1)/(2*gamma)*np.log(((gamma+1)*M**2)/(2*(1+(gamma-1)/2*M**2))))*D/(4*f)
 
 def mach_fanno(L,f,D,gamma): #Define the Fanno equation to iterate on
+    '''
+    Wraps the delta_fanno function to calculate a Mach number
+    Expected inputs:
+    L       : Choking pipe length
+    f       : Fanning friction factor
+    D       : Pipe diameter
+    gamma   : Ratio of specific heats
+    '''
     M = bisect(delta_fanno,0.001,0.99,args=(L,f,D,gamma))
     return M
 
 def delta_mass_static(M,mdot,P,Rs,To,gamma,A):
+    '''
+    Using the mdot over astar equation for choked flow combined with the P/Po equation, provides an equation to iterate on knowing all other parameters.
+    Expected inputs:
+    M        : Mach number of the flow
+    mdot     : Mass flow rate, g/s
+    P        : Static pressure, Pa
+    Rs       : Specific gas constant, J/kgK (double check units)
+    To       : Stagnation temperature, K
+    gamma    : Ratio of specific heats
+    A        : Cross-sectional area of the pipe in sq. m
+    '''
+
     return mdot/1000 - P*(1+(gamma-1)/2*M*M)**(gamma/(gamma-1))*A*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**(-(gamma+1)/(2*(gamma-1)))
 
 def delta_mass_stag(M,mdot,Po,Rs,To,gamma,A):
     '''
-    expected inputs:
-    mdot in g/s
-    Po   in Pa
+    Using the mdot over astar equation for choked flow, provides an equation to iterate on knowing all other parameters.
+    Expected inputs:
+    M        : Mach number of the flow
+    mdot     : Mass flow rate, g/s
+    Po       : Stagnation pressure, Pa
+    Rs       : Specific gas constant, J/kgK (double check units)
+    To       : Stagnation temperature, K
+    gamma    : Ratio of specific heats
+    A        : Cross-sectional area of the pipe in sq. m
     '''
     return mdot/1000 - A*Po*np.sqrt(gamma/(Rs*To))*M*(1+(gamma-1)/2*M*M)**((-(gamma+1))/(2*(gamma-1)))
 
