@@ -140,9 +140,26 @@ def back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, S
     #print(tabulate(reversed(print_statements)))
     print_statements = []
     #print(tabulate(print_statements))
+    return Po1, mdot
+def fanno_iterator(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange):
+    Po1, mdot = back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
     return Po1-Po1_initial
 #Pbottle = back_fanno(Po1_initial,Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
 
 #
-Pexit = bisect(back_fanno,14.7,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
+Cv_needle =9#np.linspace(1,Cv_nvalv,round(Cv_nvalv/0.1))
+result    = []
+result.append(["Cv_needle","mdot (g/s)","Pbottle (psi)","Pexit (psi)"])
+# for x in Cv_needle:
+#     Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
+#     Pbottle, mdot = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
+#     result.append([x,mdot,Pbottle,Pexit])
+
+
+Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
+Pbottle, mdot = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
+result.append([Cv_needle,mdot,Pbottle,Pexit])
+
+
 print(tabulate(print_statements))
+print(tabulate(result))
