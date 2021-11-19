@@ -5,6 +5,54 @@ from scipy.optimize import bisect
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
 
+def fanno_losses_backwards(Po2,To,gamma,M2,Rs,Dpipe,mu,epsilon,L): #function to be added to CompressibleFlowFunctions.py
+    '''
+    Function calculates initial conditions in a friction pipe knowing the exit conditions
+    Expected inputs:
+    Po2      : Exit Stagnation pressure, PSI
+    To       : Stagnation temperature, K
+    gamma    : Ratio of specific heats
+    M2       : Exit Mach number
+    Rs       : Specific gas constant, J/kgK (double check units)
+    Dpipe    : Pipe diameter, meters
+    mu       : Dynamic viscosity
+    epsilon  : Surface roughness
+    L        : Pipe length, meters
+    '''
+    PHI2           = fanno_equation(M2,gamma)
+    f, Re          = fanning_and_reynolds(Po2,To,gamma,M2,Rs,Dpipe,mu,epsilon)
+    Lstar2         = Lstar_fanno(f,Dpipe,M2,gamma)
+    fanno_constant = 4*f*L/Dpipe
+    PHI1           = fanno_constant + PHI2
+    Lstar1         = Lstar2 + L
+    M1             = bisect(delta_fanno,0.001,0.9999,args=(Lstar1,f,Dpipe,gamma))
+    Poratf  = fanno_po_ratio(M2,gamma)
+    Postar  = Po2/Poratf
+    Po1     = Postar*fanno_po_ratio(M1,gamma)
+    P1      = p_from_pratio(Po1,gamma,M1)
+    P2      = p_from_pratio(Po2,gamma,M2)
+
+    return M1, Po1, P1, Po2, P2, Lstar1, Lstar2
+
+def flowrates_backwards(P1,P2,Cv,SG,Q):
+    '''
+    Function simply wraps the flowrates() function to iterate on inlet pressure. Returns inlet pressure
+    Expected inputs:
+    P1 and P2: Pressures upstream and downstream, PSI
+    Cv       : Flow coefficient
+    SG       : Specific gravity w.r.t. air
+    Q        : Volumetric flow rate, SCFH (see mdot_to_scfh)
+    '''
+    return flowrates(P2,P1,Cv,SG,Q)
+
+def valve_losses_backwards(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
+    P_bval  = bisect(flowrates_backwards,P1, 10000, args=(P1,Cv,SG,Q))
+    M_bval  = bisect(delta_mass_static,0.0000001,0.99999999,args=(mdot,P_bval*101325/14.7,Rs,To,gamma,Apipe))
+    Po_bval = P_bval/(1+((gamma-1)/2)*M_bval**2)**(-(gamma)/(gamma-1))
+
+    return P_bval, Po_bval, M_bval
+
+
 def fanning_and_reynolds(Po1,To,gamma,M,Rs,Dpipe,mu,epsilon):
     P1         = p_from_pratio(Po1,gamma,M)
     T1         = T_from_Tratio(To,gamma,M)
