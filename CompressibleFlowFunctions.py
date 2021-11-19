@@ -27,7 +27,6 @@ def fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L):
     ##==================================================================##
     P1         = p_from_pratio(Po1,gamma,M1)
     fanning, Re = fanning_and_reynolds(Po1,To,gamma,M1,Rs,Dpipe,mu,epsilon)
-    print(fanning)
 
 
 
@@ -57,6 +56,7 @@ def fanno_losses(mdot,Rs,SG,Dpipe,Apipe,Po1,Po1_metric,To,gamma,mu,epsilon,L):
 
 
 def valve_losses(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
+    #P2 = bisect(flowrates, 0, P1,args=(P1,Cv,SG,Q))
     P2 = bisect(flowrates,0,P1,args=(P1,Cv,SG,Q))
     M_aval  = bisect(delta_mass_static,0.0001,0.99,args=(mdot,P2*101325/14.7,Rs,To,gamma,Apipe))
     Po_aval = P2/(1+((gamma-1)/2)*M_aval**2)**(-(gamma)/(gamma-1))
