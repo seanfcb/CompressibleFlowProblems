@@ -47,6 +47,8 @@ def flowrates_backwards(P1,P2,Cv,SG,Q):
 
 def valve_losses_backwards(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
     P_bval  = bisect(flowrates_backwards,P1, 10000, args=(P1,Cv,SG,Q))
+    if P_bval > 2*P1:
+        P_bval = flowrates_choked(Cv,SG,Q)
     M_bval  = bisect(delta_mass_static,0.0000001,0.99999999,args=(mdot,P_bval*101325/14.7,Rs,To,gamma,Apipe))
     Po_bval = P_bval/(1+((gamma-1)/2)*M_bval**2)**(-(gamma)/(gamma-1))
 
@@ -119,7 +121,18 @@ def flowrates(P2,P1,Cv,SG,Q):
     SG       : Specific gravity w.r.t. air
     Q        : Volumetric flow rate, SCFH (see mdot_to_scfh)
     '''
-    return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2))/np.sqrt(SG) - Q ##From the Deltrol catalog, equation relating volume flow rate Q to
+    return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2))/np.sqrt(SG) - Q
+
+def flowrates_choked(Cv,SG,Q):
+    '''
+    Calculates the static pressure drop through a flow device rated by Cv
+    Expected inputs:
+    P1 and P2: Pressures upstream and downstream, PSI
+    Cv       : Flow coefficient
+    SG       : Specific gravity w.r.t. air
+    Q        : Volumetric flow rate, SCFH (see mdot_to_scfh)
+    '''
+    return Q*np.sqrt(SG)/(42.2*0.87*Cv)
 
 def area_from_mass(Po,To,Rs,gamma,mdot):
     '''
