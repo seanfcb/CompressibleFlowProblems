@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.optimize import bisect
 from CompressibleFlowFunctions import *
 from fannocvloss_algo import * ##### This script runs the input file fannocvloss_algo.py
@@ -9,7 +10,8 @@ import sys
 ## Include new functions in CompressibleFlowFunctions.py when ready
 ##==================================================================##
 print_statements = []
-
+def column(matrix, i):
+    return [row[i] for row in matrix]
 def tabular_print(*args):
     print_statements.append(args)
 
@@ -94,7 +96,7 @@ def back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, S
     f, Re       = fanning_and_reynolds(Po2,To,gamma,M2,Rs,Dpipe,mu,epsilon)
     Lstar2      =  Lstar_fanno(f,Dpipe,M2,gamma)
     tabular_print("Before needle valve",round(P2,2),round(Po2,2),round(M2,4),Lstar2)
-
+    nvalv_rat   = P2/P1
     ##==================================================================##
     ## Calculate conditions downstream of manual interlock valve
     ##==================================================================##
@@ -140,26 +142,45 @@ def back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, S
     #print(tabulate(reversed(print_statements)))
     print_statements = []
     #print(tabulate(print_statements))
-    return Po1, mdot
+    return Po1, mdot, nvalv_rat
 def fanno_iterator(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange):
-    Po1, mdot = back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
+    Po1, mdot, nvalv_rat = back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
     return Po1-Po1_initial
 #Pbottle = back_fanno(Po1_initial,Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
 
 #
-Cv_needle =9#np.linspace(1,Cv_nvalv,round(Cv_nvalv/0.1))
-result    = []
-result.append(["Cv_needle","mdot (g/s)","Pbottle (psi)","Pexit (psi)"])
-# for x in Cv_needle:
-#     Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
-#     Pbottle, mdot = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
-#     result.append([x,mdot,Pbottle,Pexit])
+Cv_needle        = np.linspace(0.66,Cv_nvalv,round((Cv_nvalv-0.7)/0.1)+1)
+result           = []
+result_nohead    = []
+
+result.append(["Cv_needle","mdot (g/s)", "Pratio, needle valve","Pbottle (psi)","Pexit (psi)"])
+for x in Cv_needle:
+    Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
+    Pbottle, mdot,nvalv_rat = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
+    result_nohead.append([x,mdot,nvalv_rat,Pbottle,Pexit])
+    result.append([x,mdot,nvalv_rat,Pbottle,Pexit])
 
 
-Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
-Pbottle, mdot = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
-result.append([Cv_needle,mdot,Pbottle,Pexit])
+# Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
+# Pbottle, mdot, nvalv_rat = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
+# result.append([Cv_needle,mdot,nvalv_rat,Pbottle,Pexit])
 
 
 print(tabulate(print_statements))
 print(tabulate(result))
+
+Cv_n     = column(result_nohead,0)
+pressrat = column(result_nohead,2)
+dotm     = column(result_nohead,1)
+
+figure, axis = plt.subplots(1,2)
+
+axis[0].plot(Cv_n,pressrat)
+axis[0].set_xlabel("Cv_needle valve")
+axis[0].set_ylabel("P2/P1")
+
+axis[1].plot(Cv_n,dotm)
+axis[1].set_xlabel("Cv_needle valve")
+axis[1].set_ylabel("mdot (g/s)")
+
+plt.show()
