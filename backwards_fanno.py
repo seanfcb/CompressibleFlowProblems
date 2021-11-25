@@ -4,7 +4,6 @@ from scipy.optimize import bisect
 from CompressibleFlowFunctions import *
 from fannocvloss_algo import * ##### This script runs the input file fannocvloss_algo.py
 from tabulate import tabulate
-#from test import * ##temp function
 import sys
 ##==================================================================##
 ## Include new functions in CompressibleFlowFunctions.py when ready
@@ -149,7 +148,7 @@ def fanno_iterator(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilo
 #Pbottle = back_fanno(Po1_initial,Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
 
 #
-Cv_needle        = np.linspace(0.66,Cv_nvalv,round((Cv_nvalv-0.7)/0.1)+1)
+Cv_needle        = [1,2,3,4,5,6,7,8,9]#np.linspace(0.7,Cv_nvalv,round((Cv_nvalv-0.7)/0.1)+1)
 result           = []
 result_nohead    = []
 

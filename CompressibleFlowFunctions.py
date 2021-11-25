@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-from scipy.optimize import bisect
+from scipy.optimize import *
 
 ###All functions take as an input: pressure in PSI, Temperature in Kelvin, Pipe diameters in inches
 ###All functions output answers in SI units
@@ -46,12 +46,27 @@ def flowrates_backwards(P1,P2,Cv,SG,Q):
     return flowrates(P2,P1,Cv,SG,Q)
 
 def valve_losses_backwards(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
-    P_bval  = bisect(flowrates_backwards,P1, 10000, args=(P1,Cv,SG,Q))
+    P_bval  = newton(flowrates_backwards,P1, args=(P1,Cv,SG,Q))
     if P_bval > 2*P1:
         P_bval = flowrates_choked(Cv,SG,Q)
     M_bval  = bisect(delta_mass_static,0.0000001,0.99999999,args=(mdot,P_bval*101325/14.7,Rs,To,gamma,Apipe))
     Po_bval = P_bval/(1+((gamma-1)/2)*M_bval**2)**(-(gamma)/(gamma-1))
 
+
+    # def vlb(T1,P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe):
+    #     M  = bisect(mach_from_Tratio,0.00001,0.99999999,args=(To,T1,gamma))
+    #     print(M)
+    #     P_bval  = bisect(flowrates_backwards,0.1,10000, args=(P1,Cv,SG,Q,T1))
+    #     if P_bval > 2*P1:
+    #         P_bval = flowrates_choked(Cv,SG,Q)
+    #     M_bval  = newton(delta_mass_static,0.5,args=(mdot,P_bval*101325/14.7,Rs,To,gamma,Apipe))
+    #     Po_bval = P_bval/(1+((gamma-1)/2)*M_bval**2)**(-(gamma)/(gamma-1))
+    #     return M-M_bval
+    #
+    # T_bval = newton(vlb, 0.85*To, args=(P1,Cv,SG,Q,mdot,Rs,To,gamma,Apipe))
+    # M_bval = bisect(mach_from_Tratio,0.01,0.99999,args=(To,T_bval,gamma))
+    # P_bval = bisect(flowrates_backwards,0.1,10000, args=(P1,Cv,SG,Q,T_bval))
+    # Po_bval = P_bval/(1+((gamma-1)/2)*M_bval**2)**(-(gamma)/(gamma-1))
     return P_bval, Po_bval, M_bval
 
 
@@ -122,6 +137,9 @@ def flowrates(P2,P1,Cv,SG,Q):
     Q        : Volumetric flow rate, SCFH (see mdot_to_scfh)
     '''
     return 42.2*Cv*np.sqrt((P1-P2)*(P1+P2))/np.sqrt(SG) - Q
+    # conv = 60*22.67*np.sqrt(5/9)#conversion constant
+    # delP = P1-P2
+    # return Q - conv*Cv*(1-(2/3)*delP/P1)*np.sqrt(delP/(P1*SG*T1))
 
 def flowrates_choked(Cv,SG,Q):
     '''
@@ -133,6 +151,8 @@ def flowrates_choked(Cv,SG,Q):
     Q        : Volumetric flow rate, SCFH (see mdot_to_scfh)
     '''
     return Q*np.sqrt(SG)/(42.2*0.87*Cv)
+    # conv = 60*0.471*22.67*np.sqrt(5/9)
+    # return Q*np.sqrt(SG*T1)/(conv*Cv)
 
 def area_from_mass(Po,To,Rs,gamma,mdot):
     '''
@@ -333,8 +353,10 @@ def T_from_Tratio(To,gamma,M):
     M        : Mach number
 
     '''
-    T_static = To/(1+((gamma-1)/2)*M**2)
-    return T_static
+    return To/(1+((gamma-1)/2)*M**2)
+
+def mach_from_Tratio(M,To,T1,gamma):
+    return T_from_Tratio(To,gamma,M)-T1
 
 def mdot_to_scfh(mdot,Rs,G):
     '''
