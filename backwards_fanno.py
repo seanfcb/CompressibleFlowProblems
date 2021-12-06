@@ -22,6 +22,9 @@ def tabular_print(*args):
 
 def delta_mass(mdot,M,Po,Rs,To,gamma,A): #wrapping delta_mass_stag to iterate over mdot in g/s
     return delta_mass_stag(M,mdot,Po,Rs,To,gamma,A)
+
+
+
 ##==================================================================##
 ## 2-part algorithm for calculation
 ##==================================================================##
@@ -53,10 +56,9 @@ M2  = 1
 ##==================================================================##
 def back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_nvalv,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange):
     print_statements = []
-
+    Po2_init = Po2
     mdot = bisect(delta_mass, 0.0001, 1000000, args=(M2,Po2*101325/14.7,Rs,To,gamma,Apipe))
     Q =  mdot_to_scfh(mdot,Rs,SG)
-
     M1, Po1, P1, Po2, P2, Lstar1, Lstar2 = fanno_losses_backwards(Po2,To,gamma,M2,Rs,Dpipe,mu,epsilon,L_thru_flange)
 
     tabular_print("Before engine",round(P2,2),round(Po2,2),round(M2,4),Lstar2)
@@ -140,7 +142,6 @@ def back_fanno(Po2, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, S
     tabular_print("Bottle valve inlet conditions",round(P1,2),round(Po1,2),round(M1,4),Lstar1)
 
 
-
     tabular_print("Location","P_static","P_total","Mach number","Lstar") #set headers
     tabular_print("Mass Flow Rate",mdot,"g/s") #set headers
 
@@ -159,12 +160,13 @@ Cv_needle        = np.linspace(Cv_min,Cv_nvalv,round((Cv_nvalv-Cv_min)/0.1)+1)#[
 result           = []
 result_nohead    = []
 
-result.append(["Cv_needle","mdot (g/s)", "Pratio, needle valve","Pbottle (psi)","Pexit (psi)"])
+result.append(["Cv_needle","mdot (g/s)", "Pratio, needle valve","Pbottle (psi)","Pexit (psi)","mdot/Pexit (bare with me)","Spacer thickness (thou)"])
 for x in Cv_needle:
     Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
     Pbottle, mdot,nvalv_rat = back_fanno(Pexit, Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,x,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange)
+    t = newton(spacer_sizing,10,args=(Pexit*101325/14.7,To,Rs,mdot,gamma,specs))/0.0254*1000
     result_nohead.append([x,mdot,nvalv_rat,Pbottle,Pexit])
-    result.append([x,mdot,nvalv_rat,Pbottle,Pexit])
+    result.append([x,mdot,nvalv_rat,Pbottle,Pexit,mdot/Pexit,t])
 
 
 # Pexit = bisect(fanno_iterator,0.1,Po1_initial,args=(Po1_initial, M2, Rs, To, gamma, Apipe, Dpipe, mu, epsilon, SG,Cv_ballv,Cv_needle,Cv_check,L_to_bval1,L_to_bval2,L_to_needle,L_to_bval3,L_to_check,L_thru_flange))
