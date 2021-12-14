@@ -1,30 +1,33 @@
 ######  Input file for flow_system_pressure_loss.py
 import numpy as np
 
-# ##Quantities specific to Oxygen (O2)
-# Mm         = 32 #Molar Mass of oxygen
-# gamma      = 1.4 #gamma of oxygen
-# To         = 300
-# Rs         = 8314.5/Mm # calculate the specific gas constant
-# SG         = 1.1044 #specific gravity of O2 vs Air
-# mdot       = 150 #grams per second
-# mu         = 12e-6
-# gammarat   = (gamma+1)/(gamma-1)
-# specs      = [2.862626*0.0254,30*np.pi/180] #Format for spacer_sizing.[dia,alpha_inj]
-
-##Quantities specific to Ethylene (C2H4)
-Mm         = 28 #Molar Mass of ethylene
-gamma      = 1.24 #gamma of ethylene
+##Quantities specific to Oxygen (O2)
+fluid      = 'oxygen'
+Mm         = 32 #Molar Mass of oxygen
+gamma      = 1.4 #gamma of oxygen
 To         = 300
 Rs         = 8314.5/Mm # calculate the specific gas constant
-SG         = 0.9686 #specific gravity of C2H4 vs Air
-#mdot       = 155 #grams per second
-mu         = 90e-6
+SG         = 1.1044 #specific gravity of O2 vs Air
+mdot       = 150 #grams per second
+mu         = 12e-6
 gammarat   = (gamma+1)/(gamma-1)
-specs      = [1.892*0.0254,30*np.pi/180] #Format for spacer_sizing.[dia,alpha_inj]
+specs      = [2.862626*0.0254,30*np.pi/180] #Format for spacer_sizing.[dia,alpha_inj]
+
+# ##Quantities specific to Ethylene (C2H4)
+# fluid      = 'ethylene'
+# Mm         = 28 #Molar Mass of ethylene
+# gamma      = 1.24 #gamma of ethylene
+# To         = 300
+# Rs         = 8314.5/Mm # calculate the specific gas constant
+# SG         = 0.9686 #specific gravity of C2H4 vs Air
+# #mdot       = 155 #grams per second
+# mu         = 90e-6
+# gammarat   = (gamma+1)/(gamma-1)
+# specs      = [1.892*0.0254,30*np.pi/180] #Format for spacer_sizing.[dia,alpha_inj]
 
 
 # ##Quantities specific to Hydrogen (H2)
+# fluid      = 'hydrogen'
 # Mm         = 2 #Molar Mass of hydrogen
 # gamma      = 1.4 #gamma of hydrogen
 # To         = 300
